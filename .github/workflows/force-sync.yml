@@ -56,6 +56,31 @@ jobs:
           git push https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-passwall-packages.git \
             refs/remotes/upstream/main:refs/heads/main --force
 
+  sync-openwrt-passwall2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout private repo
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream
+        run: git remote add upstream https://github.com/xiaorouji/openwrt-passwall2.git
+
+      - name: Fetch upstream main
+        run: git fetch upstream main
+
+      - name: Push to public fork main
+        run: |
+          git push https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-passwall2.git \
+            refs/remotes/upstream/main:refs/heads/main --force
+
   sync-ChatGPT-Micro-Cap-Experiment:
     runs-on: ubuntu-latest
     steps:
