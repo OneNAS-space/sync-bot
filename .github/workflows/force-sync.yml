@@ -76,23 +76,22 @@ jobs:
       - name: Add upstream
         run: git remote add upstream https://github.com/xiaorouji/openwrt-passwall2.git
 
-      - name: Fetch upstream main (full history)
-        run: git fetch upstream main --tags
+      - name: Fetch upstream
+        run: git fetch upstream main
 
-      - name: Filter repo to luci-app-passwall2 only
+      # 只更新 luci-app-passwall2 目录
+      - name: Update luci-app-passwall2 from upstream
         run: |
-          git checkout -B sync-tmp upstream/main
-          python3 -m pip install --upgrade pip
-          python3 -m pip install git-filter-repo
-          git filter-repo --path luci-app-passwall2 --force
-          # 再确保不包含任何工作流目录（双保险）
-          git rm -r --cached .github || true
-          git commit -m "Strip .github after filter" || true
-          
-      - name: Push subtree to public fork main
+          git checkout upstream/main -- luci-app-passwall2
+
+      - name: Commit changes
         run: |
-          git push https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-passwall2.git \
-            HEAD:refs/heads/main --force
+          git add luci-app-passwall2
+          git commit -m "Sync luci-app-passwall2 from upstream" || echo "No changes to commit"
+
+      - name: Push to fork
+        run: |
+          git push https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-passwall2.git HEAD:main
 
   sync-ChatGPT-Micro-Cap-Experiment:
     runs-on: ubuntu-latest
