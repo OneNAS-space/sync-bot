@@ -88,7 +88,7 @@ jobs:
       - name: Push to public fork main
         run: |
           git push https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-passwall2.git \
-            HEAD:refs/heads/main --force
+            refs/remotes/upstream/main:refs/heads/main --force
 
   sync-ChatGPT-Micro-Cap-Experiment:
     runs-on: ubuntu-latest
