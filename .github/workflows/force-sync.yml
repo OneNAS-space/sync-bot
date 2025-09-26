@@ -177,10 +177,10 @@ jobs:
       - name: Add upstream
         run: git remote add upstream https://github.com/muink/luci-app-natmapt.git
 
-      - name: Fetch upstream main
-        run: git fetch upstream main
+      - name: Fetch upstream master
+        run: git fetch upstream master
 
-      - name: Push to public fork main
+      - name: Push to public fork master
         run: |
           git push https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-app-natmapt.git \
-            refs/remotes/upstream/main:refs/heads/main --force
+            refs/remotes/upstream/master:refs/heads/master --force
