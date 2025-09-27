@@ -163,6 +163,31 @@ jobs:
           git push https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-app-advanced-reboot.git \
             refs/remotes/upstream/main:refs/heads/main --force
 
+  sync-openwrt-natmapt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout private repo
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream
+        run: git remote add upstream https://github.com/muink/openwrt-natmapt.git
+
+      - name: Fetch upstream master
+        run: git fetch upstream master
+
+      - name: Push to public fork master
+        run: |
+          git push https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-natmapt.git \
+            refs/remotes/upstream/master:refs/heads/master --force
+            
   sync-luci-app-natmapt:
     runs-on: ubuntu-latest
     steps:
