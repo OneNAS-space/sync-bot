@@ -2,7 +2,7 @@ name: Mirror multiple upstream repos to public forks
 
 on:
   schedule:
-    - cron: '0 6 * * *'   # 每天 Aisa/Shanghai 06:00 运行
+    - cron: '0 */2 * * *'   # 每2小时 运行
   workflow_dispatch:
   
 env:
