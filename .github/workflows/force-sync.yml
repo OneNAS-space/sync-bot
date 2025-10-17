@@ -141,37 +141,44 @@ jobs:
   sync-advanced-reboot:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout private repo
-        uses: actions/checkout@v5
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-
       - name: Set up Git
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Add upstream
-        run: git remote add upstream https://github.com/stangri/luci-app-advanced-reboot.git
-
-      - name: Fetch upstream main
-        run: git fetch upstream main
-
-      - name: Merge upstream but keep workflows
+      # 1) 克隆目标仓库到临时目录
+      - name: Clone target fork
         run: |
-          # 确保在 main 分支
+          rm -rf /tmp/advanced-reboot
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-app-advanced-reboot.git /tmp/advanced-reboot
+          cd /tmp/advanced-reboot
           git checkout main
 
-          # 从 upstream/main 检出所有文件，但排除 .github/workflows
+      # 2) 添加上游并拉取
+      - name: Add upstream and fetch
+        run: |
+          cd /tmp/advanced-reboot
+          git remote add upstream https://github.com/stangri/luci-app-advanced-reboot.git || true
+          git fetch upstream main
+
+      # 3) 用上游内容更新，但排除 .github/workflows
+      - name: Update from upstream excluding workflows
+        run: |
+          cd /tmp/advanced-reboot
+          # 检出上游所有文件，但跳过 .github/workflows
           git checkout upstream/main -- . ':!.github/workflows'
 
-          # 提交同步结果（如果有变更）
-          git commit -m "Sync from upstream (excluding .github/workflows)" || echo "No changes"
+          # 确保不会误带入私有仓库的 workflows
+          git rm -r --cached .github/workflows || true
+          rm -rf .github/workflows
 
-      - name: Push to public fork main
+      # 4) 提交并推送
+      - name: Commit and push
         run: |
-          git push https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-app-advanced-reboot.git main --force
+          cd /tmp/advanced-reboot
+          git add -A
+          git commit -m "Sync from upstream (excluding .github/workflows)" || echo "No changes"
+          git push origin HEAD:main --force-with-lease
 
   sync-openwrt-natmapt:
     runs-on: ubuntu-latest
