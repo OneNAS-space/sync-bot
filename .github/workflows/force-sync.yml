@@ -158,10 +158,20 @@ jobs:
       - name: Fetch upstream main
         run: git fetch upstream main
 
+      - name: Merge upstream but keep workflows
+        run: |
+          # 确保在 main 分支
+          git checkout main
+
+          # 从 upstream/main 检出所有文件，但排除 .github/workflows
+          git checkout upstream/main -- . ':!.github/workflows'
+
+          # 提交同步结果（如果有变更）
+          git commit -m "Sync from upstream (excluding .github/workflows)" || echo "No changes"
+
       - name: Push to public fork main
         run: |
-          git push https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-app-advanced-reboot.git \
-            refs/remotes/upstream/main:refs/heads/main --force
+          git push https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-app-advanced-reboot.git main --force
 
   sync-openwrt-natmapt:
     runs-on: ubuntu-latest
