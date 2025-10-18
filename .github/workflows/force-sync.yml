@@ -237,7 +237,8 @@ jobs:
           cd /tmp/luci-app-adguardhome
           git add -A
           git commit -m "Sync luci-app-adguardhome from kenzok8/openwrt-packages" || echo "No changes"
-          git push origin main --force-with-lease
+          git branch -M main
+          git push origin main --force
           
   sync-openwrt-natmapt:
     runs-on: ubuntu-latest
