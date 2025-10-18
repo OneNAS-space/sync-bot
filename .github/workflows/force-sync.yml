@@ -2,11 +2,11 @@ name: Mirror multiple upstream repos to public forks
 
 on:
   schedule:
-    - cron: '0 */2 * * *'   # 每2小时 运行
-  workflow_dispatch:        # 手动触发
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
   push:
     branches:
-      - main                # 当推送到 main 分支时触发
+      - main
   
 env:
   TZ: Asia/Shanghai
@@ -199,6 +199,47 @@ jobs:
           git commit -m "Sync luci-app-vlmcsd from kiddin9/kwrt-packages" || echo "No changes"
           git branch -M main
           git push origin main --force
+
+  sync-vlmcsd:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone upstream
+        run: |
+          rm -rf /tmp/kiddin9
+          git clone --depth=1 https://github.com/kiddin9/kwrt-packages.git /tmp/kiddin9
+
+      - name: Prepare target working tree
+        run: |
+          rm -rf /tmp/vlmcsd
+          mkdir -p /tmp/vlmcsd
+          cd /tmp/vlmcsd
+          git init
+          git remote add origin https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/vlmcsd.git
+
+      - name: Sync vlmcsd from upstream
+        run: |
+          rsync -av --delete \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='LICENSE' \
+            --exclude='SECURITY.md' \
+            /tmp/kiddin9/vlmcsd/ /tmp/vlmcsd/
+
+          rm -rf /tmp/vlmcsd/.github/workflows
+
+      - name: Commit and push
+        run: |
+          cd /tmp/vlmcsd
+          git add -A
+          git commit -m "Sync vlmcsd from kiddin9/kwrt-packages" || echo "No changes"
+          git branch -M main
+          git push origin main --force
+
 
   sync-luci-app-adguardhome:
     runs-on: ubuntu-latest
