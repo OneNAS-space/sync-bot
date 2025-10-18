@@ -134,35 +134,28 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Clone upstream
+      - name: Clone target repo
         run: |
-          rm -rf /tmp/upstream
-          git clone --depth=1 https://github.com/stangri/luci-app-advanced-reboot.git /tmp/upstream
-
-      - name: Prepare target working tree
-        run: |
-          rm -rf /tmp/advanced-reboot
-          mkdir -p /tmp/advanced-reboot
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-app-advanced-reboot.git /tmp/advanced-reboot
           cd /tmp/advanced-reboot
-          git init
-          git remote add origin https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-app-advanced-reboot.git
+          git checkout main
 
-      - name: Sync from upstream excluding workflows
+      - name: Add upstream and fetch
         run: |
-          rsync -av --delete \
-            --exclude='.git/' \
-            --exclude='.github/' \
-            --exclude='LICENSE' \
-            --exclude='SECURITY.md' \
-            /tmp/upstream/ /tmp/advanced-reboot/
-          rm -rf /tmp/advanced-reboot/.github/workflows
+          cd /tmp/advanced-reboot
+          git remote add upstream https://github.com/stangri/luci-app-advanced-reboot.git || true
+          git fetch upstream main
+
+      - name: Update from upstream (excluding workflows)
+        run: |
+          cd /tmp/advanced-reboot
+          git checkout upstream/main -- . ':!.github/workflows'
 
       - name: Commit and push
         run: |
           cd /tmp/advanced-reboot
           git add -A
-          git commit -m "Sync from upstream (excluding .github/workflows)" || echo "No changes"
-          git branch -M main
+          git commit -m "Sync from upstream (excluding workflows)" || echo "No changes"
           git push origin main --force
 
   sync-luci-app-vlmcsd:
