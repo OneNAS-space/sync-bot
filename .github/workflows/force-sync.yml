@@ -70,35 +70,29 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Clone upstream
+      - name: Clone target repo
         run: |
-          rm -rf /tmp/upstream
-          git clone --depth=1 https://github.com/xiaorouji/openwrt-passwall2.git /tmp/upstream
-
-      - name: Prepare target working tree
-        run: |
-          rm -rf /tmp/passwall2
-          mkdir -p /tmp/passwall2
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-passwall2.git /tmp/passwall2
           cd /tmp/passwall2
-          git init
-          git branch -M main
-          git remote add origin https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-passwall2.git
+          git checkout main
 
-      - name: Sync luci-app-passwall2 from upstream
+      - name: Add upstream and fetch
         run: |
-          rsync -av --delete \
-            --exclude='.git/' \
-            --exclude='.github/' \
-            --exclude='LICENSE' \
-            --exclude='SECURITY.md' \
-            /tmp/upstream/luci-app-passwall2/ /tmp/passwall2/luci-app-passwall2/
+          cd /tmp/passwall2
+          git remote add upstream https://github.com/xiaorouji/openwrt-passwall2.git || true
+          git fetch upstream main
+
+      - name: Update luci-app-passwall2 from upstream
+        run: |
+          cd /tmp/passwall2
+          rm -rf luci-app-passwall2
+          git checkout upstream/main -- luci-app-passwall2
 
       - name: Commit and push
         run: |
           cd /tmp/passwall2
-          git add -A
+          git add luci-app-passwall2
           git commit -m "Sync luci-app-passwall2 from upstream" || echo "No changes"
-          git branch -M main
           git push origin main --force
 
   sync-ChatGPT-Micro-Cap-Experiment:
@@ -166,36 +160,31 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Clone upstream
+      - name: Clone target repo
         run: |
-          rm -rf /tmp/kiddin9
-          git clone --depth=1 https://github.com/kiddin9/kwrt-packages.git /tmp/kiddin9
-
-      - name: Prepare target working tree
-        run: |
-          rm -rf /tmp/luci-app-vlmcsd
-          mkdir -p /tmp/luci-app-vlmcsd
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-app-vlmcsd.git /tmp/luci-app-vlmcsd
           cd /tmp/luci-app-vlmcsd
-          git init
-          git remote add origin https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-app-vlmcsd.git
+          git checkout main
 
-      - name: Sync luci-app-vlmcsd from upstream
+      - name: Add upstream and fetch
         run: |
-          rsync -av --delete \
-            --exclude='.git/' \
-            --exclude='.github/' \
-            --exclude='LICENSE' \
-            --exclude='SECURITY.md' \
-            /tmp/kiddin9/luci-app-vlmcsd/ /tmp/luci-app-vlmcsd/
+          cd /tmp/luci-app-vlmcsd
+          git remote add upstream https://github.com/kiddin9/kwrt-packages.git || true
+          git fetch upstream main
 
-          rm -rf /tmp/luci-app-vlmcsd/.github/workflows
+      - name: Update luci-app-vlmcsd from upstream
+        run: |
+          cd /tmp/luci-app-vlmcsd
+          rm -rf *
+          git checkout upstream/main -- luci-app-vlmcsd
+          mv luci-app-vlmcsd/* .
+          rm -rf luci-app-vlmcsd
 
       - name: Commit and push
         run: |
           cd /tmp/luci-app-vlmcsd
           git add -A
           git commit -m "Sync luci-app-vlmcsd from kiddin9/kwrt-packages" || echo "No changes"
-          git branch -M main
           git push origin main --force
 
   sync-vlmcsd:
@@ -206,38 +195,32 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Clone upstream
+      - name: Clone target repo
         run: |
-          rm -rf /tmp/kiddin9
-          git clone --depth=1 https://github.com/kiddin9/kwrt-packages.git /tmp/kiddin9
-
-      - name: Prepare target working tree
-        run: |
-          rm -rf /tmp/vlmcsd
-          mkdir -p /tmp/vlmcsd
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/vlmcsd.git /tmp/vlmcsd
           cd /tmp/vlmcsd
-          git init
-          git remote add origin https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/vlmcsd.git
+          git checkout main
 
-      - name: Sync vlmcsd from upstream
+      - name: Add upstream and fetch
         run: |
-          rsync -av --delete \
-            --exclude='.git/' \
-            --exclude='.github/' \
-            --exclude='LICENSE' \
-            --exclude='SECURITY.md' \
-            /tmp/kiddin9/vlmcsd/ /tmp/vlmcsd/
+          cd /tmp/vlmcsd
+          git remote add upstream https://github.com/kiddin9/kwrt-packages.git || true
+          git fetch upstream main
 
-          rm -rf /tmp/vlmcsd/.github/workflows
+      - name: Update vlmcsd from upstream
+        run: |
+          cd /tmp/vlmcsd
+          rm -rf *
+          git checkout upstream/main -- vlmcsd
+          mv vlmcsd/* .
+          rm -rf vlmcsd
 
       - name: Commit and push
         run: |
           cd /tmp/vlmcsd
           git add -A
           git commit -m "Sync vlmcsd from kiddin9/kwrt-packages" || echo "No changes"
-          git branch -M main
           git push origin main --force
-
 
   sync-luci-app-adguardhome:
     runs-on: ubuntu-latest
@@ -247,36 +230,31 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Clone upstream
+      - name: Clone target repo
         run: |
-          rm -rf /tmp/kenzok8
-          git clone --depth=1 https://github.com/kenzok8/openwrt-packages.git /tmp/kenzok8
-
-      - name: Prepare target working tree
-        run: |
-          rm -rf /tmp/luci-app-adguardhome
-          mkdir -p /tmp/luci-app-adguardhome
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-app-adguardhome.git /tmp/luci-app-adguardhome
           cd /tmp/luci-app-adguardhome
-          git init
-          git branch -M main
-          git remote add origin https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-app-adguardhome.git
+          git checkout main
 
-      - name: Sync luci-app-adguardhome from upstream
+      - name: Add upstream and fetch
         run: |
-          rsync -av --delete \
-            --exclude='.git/' \
-            --exclude='.github/' \
-            --exclude='LICENSE' \
-            --exclude='SECURITY.md' \
-            /tmp/kenzok8/luci-app-adguardhome/ /tmp/luci-app-adguardhome/
-          rm -rf /tmp/luci-app-adguardhome/.github/workflows
+          cd /tmp/luci-app-adguardhome
+          git remote add upstream https://github.com/kenzok8/openwrt-packages.git || true
+          git fetch upstream main
+
+      - name: Update luci-app-adguardhome from upstream
+        run: |
+          cd /tmp/luci-app-adguardhome
+          rm -rf *
+          git checkout upstream/main -- luci-app-adguardhome
+          mv luci-app-adguardhome/* .
+          rm -rf luci-app-adguardhome
 
       - name: Commit and push
         run: |
           cd /tmp/luci-app-adguardhome
           git add -A
           git commit -m "Sync luci-app-adguardhome from kenzok8/openwrt-packages" || echo "No changes"
-          git branch -M main
           git push origin main --force
           
   sync-openwrt-natmapt:
