@@ -175,7 +175,12 @@ jobs:
       - name: Update luci-app-vlmcsd from upstream
         run: |
           cd /tmp/luci-app-vlmcsd
-          rm -rf *
+          find . -mindepth 1 -maxdepth 1 \
+            ! -name '.git' \
+            ! -name '.github' \
+            ! -name 'LICENSE' \
+            ! -name 'SECURITY.md' \
+            -exec rm -rf {} +
           git checkout upstream/main -- luci-app-vlmcsd
           mv luci-app-vlmcsd/* .
           rm -rf luci-app-vlmcsd
@@ -210,7 +215,12 @@ jobs:
       - name: Update vlmcsd from upstream
         run: |
           cd /tmp/vlmcsd
-          rm -rf *
+          find . -mindepth 1 -maxdepth 1 \
+            ! -name '.git' \
+            ! -name '.github' \
+            ! -name 'LICENSE' \
+            ! -name 'SECURITY.md' \
+            -exec rm -rf {} +
           git checkout upstream/main -- vlmcsd
           mv vlmcsd/* .
           rm -rf vlmcsd
@@ -245,7 +255,12 @@ jobs:
       - name: Update luci-app-adguardhome from upstream
         run: |
           cd /tmp/luci-app-adguardhome
-          rm -rf *
+          find . -mindepth 1 -maxdepth 1 \
+            ! -name '.git' \
+            ! -name '.github' \
+            ! -name 'LICENSE' \
+            ! -name 'SECURITY.md' \
+            -exec rm -rf {} +
           git checkout upstream/main -- luci-app-adguardhome
           mv luci-app-adguardhome/* .
           rm -rf luci-app-adguardhome
