@@ -96,7 +96,7 @@ jobs:
           git add -A
           git commit -m "Sync luci-app-passwall2 from upstream" || echo "No changes"
           git branch -M main
-          git push origin main --force-with-lease
+          git push origin main --force
 
   sync-ChatGPT-Micro-Cap-Experiment:
     runs-on: ubuntu-latest
@@ -158,7 +158,7 @@ jobs:
           git add -A
           git commit -m "Sync from upstream (excluding .github/workflows)" || echo "No changes"
           git branch -M main
-          git push origin main --force-with-lease
+          git push origin main --force
 
   sync-luci-app-vlmcsd:
     runs-on: ubuntu-latest
@@ -198,7 +198,7 @@ jobs:
           git add -A
           git commit -m "Sync luci-app-vlmcsd from kiddin9/kwrt-packages" || echo "No changes"
           git branch -M main
-          git push origin main --force-with-lease
+          git push origin main --force
 
   sync-luci-app-adguardhome:
     runs-on: ubuntu-latest
