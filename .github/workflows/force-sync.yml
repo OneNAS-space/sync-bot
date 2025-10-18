@@ -250,7 +250,7 @@ jobs:
         run: |
           cd /tmp/luci-app-adguardhome
           git remote add upstream https://github.com/kenzok8/openwrt-packages.git || true
-          git fetch upstream main
+          git fetch upstream master
 
       - name: Update luci-app-adguardhome from upstream
         run: |
@@ -261,7 +261,7 @@ jobs:
             ! -name 'LICENSE' \
             ! -name 'SECURITY.md' \
             -exec rm -rf {} +
-          git checkout upstream/main -- luci-app-adguardhome
+          git checkout upstream/master -- luci-app-adguardhome
           mv luci-app-adguardhome/* .
           rm -rf luci-app-adguardhome
 
