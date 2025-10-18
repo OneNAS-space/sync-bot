@@ -87,10 +87,10 @@ jobs:
       - name: Sync luci-app-passwall2 from upstream
         run: |
           rsync -av --delete \
-            --exclude='.git/' \
-            --exclude='.github/' \
-            --exclude='LICENSE' \
-            --exclude='SECURITY.md' \
+            --filter='protect /.github/' \
+            --filter='protect /.github/**' \
+            --filter='protect /LICENSE' \
+            --filter='protect /SECURITY.md' \
             /tmp/upstream/luci-app-passwall2/ /tmp/passwall2/luci-app-passwall2/
           rm -rf /tmp/passwall2/.github/workflows
 
