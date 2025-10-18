@@ -65,53 +65,38 @@ jobs:
   sync-openwrt-passwall2:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout private repo
-        uses: actions/checkout@v5
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-
       - name: Set up Git
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      # 1) 克隆你的“目标私有仓库”到临时目录（保留其所有现有文件与历史）
-      - name: Clone private target repo
+      - name: Clone upstream
         run: |
-          rm -rf /tmp/target
-          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-passwall2.git /tmp/target
-          cd /tmp/target
-          git checkout main
+          rm -rf /tmp/upstream
+          git clone --depth=1 https://github.com/xiaorouji/openwrt-passwall2.git /tmp/upstream
 
-      # 2) 在目标仓库里添加上游 remote 并拉取
-      - name: Add upstream and fetch
+      - name: Prepare target working tree
         run: |
-          cd /tmp/target
-          git remote add upstream https://github.com/xiaorouji/openwrt-passwall2.git || true
-          git fetch upstream main
+          rm -rf /tmp/passwall2
+          mkdir -p /tmp/passwall2
+          cd /tmp/passwall2
+          git init
+          git branch -M main
+          git remote add origin https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-passwall2.git
 
-      # 3) 仅更新 luci-app-passwall2 目录；其它目录与文件保持原状
-      - name: Update luci-app-passwall2 from upstream
+      - name: Sync luci-app-passwall2 from upstream
         run: |
-          cd /tmp/target
-          # 强制覆盖模式（如需干净覆盖，取消下一行注释）
-          rm -rf luci-app-passwall2
-          git checkout upstream/main -- luci-app-passwall2
+          rsync -av --delete \
+            /tmp/upstream/luci-app-passwall2/ /tmp/passwall2/luci-app-passwall2/
+          rm -rf /tmp/passwall2/.github/workflows
 
-      # 4) 提交变更（若无变更则跳过）
-      - name: Commit changes
+      - name: Commit and push
         run: |
-          cd /tmp/target
-          git add luci-app-passwall2
-          git commit -m "Sync luci-app-passwall2 from upstream" || echo "No changes to commit"
-
-      # 5) 推送到你的私有目标仓库 main 分支
-      #    如果远程有额外提交阻止推送，可改为 --force 或先合并 origin/main
-      - name: Push to private repo
-        run: |
-          cd /tmp/target
-          git push origin HEAD:main
+          cd /tmp/passwall2
+          git add -A
+          git commit -m "Sync luci-app-passwall2 from upstream" || echo "No changes"
+          git branch -M main
+          git push origin main --force-with-lease
 
   sync-ChatGPT-Micro-Cap-Experiment:
     runs-on: ubuntu-latest
@@ -146,40 +131,114 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      # 1) 克隆目标仓库到临时目录
-      - name: Clone target fork
+      - name: Clone upstream
+        run: |
+          rm -rf /tmp/upstream
+          git clone --depth=1 https://github.com/stangri/luci-app-advanced-reboot.git /tmp/upstream
+
+      - name: Prepare target working tree
         run: |
           rm -rf /tmp/advanced-reboot
-          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-app-advanced-reboot.git /tmp/advanced-reboot
+          mkdir -p /tmp/advanced-reboot
           cd /tmp/advanced-reboot
-          git checkout main
+          git init
+          git remote add origin https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-app-advanced-reboot.git
 
-      # 2) 添加上游并拉取
-      - name: Add upstream and fetch
+      - name: Sync from upstream excluding workflows
         run: |
-          cd /tmp/advanced-reboot
-          git remote add upstream https://github.com/stangri/luci-app-advanced-reboot.git || true
-          git fetch upstream main
+          rsync -av --delete \
+            --exclude='.git/' \
+            --exclude='.github/workflows' \
+            /tmp/upstream/ /tmp/advanced-reboot/
+          rm -rf /tmp/advanced-reboot/.github/workflows
 
-      # 3) 用上游内容更新，但排除 .github/workflows
-      - name: Update from upstream excluding workflows
-        run: |
-          cd /tmp/advanced-reboot
-          # 检出上游所有文件，但跳过 .github/workflows
-          git checkout upstream/main -- . ':!.github/workflows'
-
-          # 确保不会误带入私有仓库的 workflows
-          git rm -r --cached .github/workflows || true
-          rm -rf .github/workflows
-
-      # 4) 提交并推送
       - name: Commit and push
         run: |
           cd /tmp/advanced-reboot
           git add -A
           git commit -m "Sync from upstream (excluding .github/workflows)" || echo "No changes"
-          git push origin HEAD:main --force-with-lease
+          git branch -M main
+          git push origin main --force-with-lease
 
+  sync-luci-app-vlmcsd:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone upstream
+        run: |
+          rm -rf /tmp/kiddin9
+          git clone --depth=1 https://github.com/kiddin9/kwrt-packages.git /tmp/kiddin9
+
+      - name: Prepare target working tree
+        run: |
+          rm -rf /tmp/luci-app-vlmcsd
+          mkdir -p /tmp/luci-app-vlmcsd
+          cd /tmp/luci-app-vlmcsd
+          git init
+          git remote add origin https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-app-vlmcsd.git
+
+      - name: Sync luci-app-vlmcsd from upstream
+        run: |
+          rsync -av --delete \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='LICENSE' \
+            --exclude='SECURITY.md' \
+            /tmp/kiddin9/luci-app-vlmcsd/ /tmp/luci-app-vlmcsd/
+
+          rm -rf /tmp/luci-app-vlmcsd/.github/workflows
+
+      - name: Commit and push
+        run: |
+          cd /tmp/luci-app-vlmcsd
+          git add -A
+          git commit -m "Sync luci-app-vlmcsd from kiddin9/kwrt-packages" || echo "No changes"
+          git branch -M main
+          git push origin main --force-with-lease
+
+  sync-luci-app-adguardhome:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone upstream
+        run: |
+          rm -rf /tmp/kenzok8
+          git clone --depth=1 https://github.com/kenzok8/openwrt-packages.git /tmp/kenzok8
+
+      - name: Prepare target working tree
+        run: |
+          rm -rf /tmp/luci-app-adguardhome
+          mkdir -p /tmp/luci-app-adguardhome
+          cd /tmp/luci-app-adguardhome
+          git init
+          git branch -M main
+          git remote add origin https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-app-adguardhome.git
+
+      - name: Sync luci-app-adguardhome from upstream
+        run: |
+          rsync -av --delete \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='LICENSE' \
+            --exclude='SECURITY.md' \
+            /tmp/kenzok8/luci-app-adguardhome/ /tmp/luci-app-adguardhome/
+          rm -rf /tmp/luci-app-adguardhome/.github/workflows
+
+      - name: Commit and push
+        run: |
+          cd /tmp/luci-app-adguardhome
+          git add -A
+          git commit -m "Sync luci-app-adguardhome from kenzok8/openwrt-packages" || echo "No changes"
+          git push origin main --force-with-lease
+          
   sync-openwrt-natmapt:
     runs-on: ubuntu-latest
     steps:
