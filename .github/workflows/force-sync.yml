@@ -210,8 +210,8 @@ jobs:
 
       - name: Clone upstream
         run: |
-          rm -rf /tmp/kiddin9vlmcsd
-          git clone --depth=1 https://github.com/kiddin9/kwrt-packages.git /tmp/kiddin9vlmcsd
+          rm -rf /tmp/kiddin9
+          git clone --depth=1 https://github.com/kiddin9/kwrt-packages.git /tmp/kiddin9
 
       - name: Prepare target working tree
         run: |
