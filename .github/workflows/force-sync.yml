@@ -149,7 +149,7 @@ jobs:
         run: |
           cd /tmp/advanced-reboot
           git add -A
-          git commit -m "Sync from upstream (excluding workflows)" || echo "No changes"
+          git commit -m "Sync from stangri" || echo "No changes"
           git push origin main --force
 
   sync-luci-app-vlmcsd:
@@ -189,7 +189,7 @@ jobs:
         run: |
           cd /tmp/luci-app-vlmcsd
           git add -A
-          git commit -m "Sync luci-app-vlmcsd from kiddin9/kwrt-packages" || echo "No changes"
+          git commit -m "Sync from kiddin9/kwrt-packages" || echo "No changes"
           git push origin main --force
 
   sync-vlmcsd:
@@ -229,7 +229,7 @@ jobs:
         run: |
           cd /tmp/vlmcsd
           git add -A
-          git commit -m "Sync vlmcsd from kiddin9/kwrt-packages" || echo "No changes"
+          git commit -m "Sync from kiddin9/kwrt-packages" || echo "No changes"
           git push origin main --force
 
   sync-luci-app-adguardhome:
@@ -269,7 +269,7 @@ jobs:
         run: |
           cd /tmp/luci-app-adguardhome
           git add -A
-          git commit -m "Sync luci-app-adguardhome from kenzok8/openwrt-packages" || echo "No changes"
+          git commit -m "Sync from kenzok8/openwrt-packages" || echo "No changes"
           git push origin main --force
           
   sync-openwrt-natmapt:
