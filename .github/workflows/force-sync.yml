@@ -2,7 +2,7 @@ name: Mirror multiple upstream repos to public forks
 
 on:
   schedule:
-    - cron: '0 */4 * * *'
+    - cron: '0 */12 * * *'
   workflow_dispatch:
   push:
     branches:
