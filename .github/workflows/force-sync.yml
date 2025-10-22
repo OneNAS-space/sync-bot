@@ -72,7 +72,7 @@ jobs:
 
       - name: Clone target repo
         run: |
-          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-passwall2.git /tmp/passwall2
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/OneNAS-space/openwrt-passwall2.git /tmp/passwall2
           cd /tmp/passwall2
           git checkout main
 
