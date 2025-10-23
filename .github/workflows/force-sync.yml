@@ -60,7 +60,7 @@ jobs:
       - name: Sparse checkout upstream (ignore .github/)
         run: |
           git sparse-checkout init --cone
-          git sparse-checkout set '/*' '!/.github'
+          git sparse-checkout set . ':!.github'
           git checkout upstream/main
 
       - name: Push to public fork main
