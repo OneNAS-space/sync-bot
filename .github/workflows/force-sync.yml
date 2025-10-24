@@ -40,38 +40,34 @@ jobs:
   sync-passwall-packages:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout private repo
-        uses: actions/checkout@v5
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-
-      - name: Set up Git
+      - name: Clone target repo
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Add upstream
-        run: git remote add upstream https://github.com/xiaorouji/openwrt-passwall-packages.git
-
-      - name: Fetch upstream main
-        run: git fetch upstream main
-
-      - name: Sparse merge from upstream (ignore .github/)
-        run: |
-          git sparse-checkout init --cone
-          git sparse-checkout set . ':!.github'
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-passwall-packages.git /tmp/passwall
+          cd /tmp/passwall
           git checkout main
-          git pull --rebase https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-passwall-packages.git main
-          git merge upstream/main --no-commit --allow-unrelated-histories || true
-          git restore --source=upstream/main --staged . ':!.github'
-          git reset HEAD .github/
-          git commit -m "Sync from upstream (excluding .github)" || echo "No changes"
 
-      - name: Push to your fork
+      - name: Add upstream and fetch
         run: |
-          git remote set-url origin https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-passwall-packages.git
-          git push origin main
+          cd /tmp/passwall
+          git remote add upstream https://github.com/xiaorouji/openwrt-passwall-packages.git || true
+          git fetch upstream main
+
+      - name: Update from upstream (excluding workflows and docs you want to keep)
+        run: |
+          cd /tmp/passwall
+          git checkout upstream/main -- . \
+            ':!.github/' \
+            ':!README.md' \
+            ':!SECURITY.md' \
+            ':!LICENSE' \
+            ':!CONTRIBUTING.md'
+
+      - name: Commit and push
+        run: |
+          cd /tmp/passwall
+          git add -A
+          git commit -m "Sync from xiaorouji" || echo "No changes"
+          git push origin main --force
 
   sync-openwrt-passwall2:
     runs-on: ubuntu-latest
