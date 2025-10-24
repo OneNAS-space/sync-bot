@@ -62,7 +62,7 @@ jobs:
           git sparse-checkout init --cone
           git sparse-checkout set . ':!.github'
           git checkout main
-          git pull --rebase origin main
+          git pull --rebase https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-passwall-packages.git main
           git merge upstream/main --no-commit --allow-unrelated-histories || true
           git restore --source=upstream/main --staged . ':!.github'
           git reset HEAD .github/
