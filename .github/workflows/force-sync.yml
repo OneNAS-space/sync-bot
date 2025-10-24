@@ -331,7 +331,6 @@ jobs:
           cd /tmp/luci-theme-argon
           git checkout upstream/master -- . \
             ':!.github/' \
-            ':!README.md' \
             ':!SECURITY.md' \
             ':!LICENSE' \
             ':!CONTRIBUTING.md'
