@@ -314,14 +314,31 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Add upstream
-        run: git remote add upstream https://github.com/jerrykuku/luci-theme-argon.git
-
-      - name: Fetch upstream master
-        run: git fetch upstream master
-
-      - name: Push to public fork master
+      - name: Clone target repo
         run: |
-          git push https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-theme-argon.git \
-            refs/remotes/upstream/master:refs/heads/master --force
-            
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-theme-argon.git /tmp/luci-theme-argon
+          cd /tmp/luci-theme-argon
+          git checkout master
+          
+      - name: Add upstream and fetch
+        run: |
+          cd /tmp/luci-theme-argon
+          git remote add upstream https://github.com/jerrykuku/luci-theme-argon.git || true
+          git fetch upstream master
+
+      - name: Update from upstream (excluding workflows and docs you want to keep)
+        run: |
+          cd /tmp/luci-theme-argon
+          git checkout upstream/master -- . \
+            ':!.github/' \
+            ':!README.md' \
+            ':!SECURITY.md' \
+            ':!LICENSE' \
+            ':!CONTRIBUTING.md'
+
+      - name: Commit and push
+        run: |
+          cd /tmp/luci-theme-argon
+          git add -A
+          git commit -m "Sync from jerrykuku" || echo "No changes"
+          git push origin main --force
