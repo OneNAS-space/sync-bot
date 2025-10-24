@@ -40,6 +40,17 @@ jobs:
   sync-passwall-packages:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout private repo
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
       - name: Clone target repo
         run: |
           git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-passwall-packages.git /tmp/passwall
