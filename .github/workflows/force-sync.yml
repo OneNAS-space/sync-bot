@@ -341,4 +341,4 @@ jobs:
           cd /tmp/luci-theme-argon
           git add -A
           git commit -m "Sync from jerrykuku" || echo "No changes"
-          git push origin main --force
+          git push origin master --force
