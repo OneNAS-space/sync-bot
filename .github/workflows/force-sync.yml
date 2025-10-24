@@ -65,6 +65,10 @@ jobs:
           git merge upstream/main --no-commit --allow-unrelated-histories || true
           git restore --source=upstream/main --staged . ':!.github'
           git commit -m "Sync from upstream (excluding .github)" || echo "No changes"
+
+      - name: Push to your fork
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-passwall-packages.git
           git push origin main
 
   sync-openwrt-passwall2:
