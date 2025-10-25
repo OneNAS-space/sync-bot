@@ -1,0 +1,495 @@
+name: Mirror multiple upstream repos to public forks
+
+on:
+  schedule:
+    - cron: '0 */12 * * *'
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  
+env:
+  TZ: Asia/Shanghai
+  
+jobs:
+  sync-luci-app-advanced-reboot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone target repo
+        run: |
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-app-advanced-reboot.git /tmp/advanced-reboot
+          cd /tmp/advanced-reboot
+          git checkout main
+
+      - name: Add upstream and fetch
+        run: |
+          cd /tmp/advanced-reboot
+          git remote add upstream https://github.com/stangri/luci-app-advanced-reboot.git || true
+          git fetch upstream main
+
+      - name: Update from upstream (excluding workflows)
+        run: |
+          cd /tmp/advanced-reboot
+          git checkout upstream/main -- . ':!.github/workflows'
+
+      - name: Commit and push
+        run: |
+          cd /tmp/advanced-reboot
+          git add -A
+          git commit -m "Sync from stangri" || echo "No changes"
+          git push origin main --force
+          
+  sync-luci-app-cpu-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout private repo
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone target repo
+        run: |
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/OneNAS-space/luci-app-cpu-status.git /tmp/luci-app-cpu-status
+          cd /tmp/luci-app-cpu-status
+          git checkout master
+          
+      - name: Add upstream and fetch
+        run: |
+          cd /tmp/luci-app-cpu-status
+          git remote add upstream https://github.com/gSpotx2f/luci-app-cpu-status.git || true
+          git fetch upstream master
+
+      - name: Update from upstream (excluding workflows and docs you want to keep)
+        run: |
+          cd /tmp/luci-app-cpu-status
+          git checkout upstream/master -- . \
+            ':!.github/' \
+            ':!SECURITY.md' \
+            ':!LICENSE' \
+            ':!CONTRIBUTING.md'
+
+      - name: Commit and push
+        run: |
+          cd /tmp/luci-app-cpu-status
+          git add -A
+          git commit -m "Sync from gSpotx2f" || echo "No changes"
+          git push origin master --force
+
+  sync-luci-app-log-viewer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout private repo
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone target repo
+        run: |
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/OneNAS-space/luci-app-log-viewer.git /tmp/luci-app-log-viewer
+          cd /tmp/luci-app-log-viewer
+          git checkout master
+          
+      - name: Add upstream and fetch
+        run: |
+          cd /tmp/luci-app-log-viewer
+          git remote add upstream https://github.com/gSpotx2f/luci-app-log.git || true
+          git fetch upstream master
+
+      - name: Update from upstream (excluding workflows and docs you want to keep)
+        run: |
+          cd /tmp/luci-app-log-viewer
+          git checkout upstream/master -- . \
+            ':!.github/' \
+            ':!SECURITY.md' \
+            ':!LICENSE' \
+            ':!CONTRIBUTING.md'
+
+      - name: Commit and push
+        run: |
+          cd /tmp/luci-app-log-viewer
+          git add -A
+          git commit -m "Sync from gSpotx2f" || echo "No changes"
+          git push origin master --force
+
+  sync-luci-app-natmapt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout private repo
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone target repo
+        run: |
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-app-natmapt /tmp/luci-app-natmapt
+          cd /tmp/luci-app-natmapt
+          git checkout master
+
+      - name: Add upstream and fetch
+        run: |
+          cd /tmp/luci-app-natmapt
+          git remote add upstream https://github.com/muink/luci-app-natmapt.git || true
+          git fetch upstream master
+
+      - name: Update from upstream (excluding workflows and docs you want to keep)
+        run: |
+          cd /tmp/luci-app-natmapt
+          git checkout upstream/master -- . \
+            ':!.github/' \
+            ':!SECURITY.md' \
+            ':!LICENSE' \
+            ':!CONTRIBUTING.md'
+
+      - name: Commit and push
+        run: |
+          cd /tmp/luci-app-natmapt
+          git add -A
+          git commit -m "Sync from muink" || echo "No changes"
+          git push origin master --force
+
+  sync-luci-app-passwall2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone target repo
+        run: |
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/OneNAS-space/openwrt-passwall2.git /tmp/passwall2
+          cd /tmp/passwall2
+          git checkout main
+
+      - name: Add upstream and fetch
+        run: |
+          cd /tmp/passwall2
+          git remote add upstream https://github.com/xiaorouji/openwrt-passwall2.git || true
+          git fetch upstream main
+
+      - name: Update luci-app-passwall2 from upstream
+        run: |
+          cd /tmp/passwall2
+          rm -rf luci-app-passwall2
+          git checkout upstream/main -- luci-app-passwall2
+
+      - name: Commit and push
+        run: |
+          cd /tmp/passwall2
+          git add luci-app-passwall2
+          git commit -m "Sync luci-app-passwall2 from upstream" || echo "No changes"
+          git push origin main --force
+
+  sync-luci-app-temp-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout private repo
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone target repo
+        run: |
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/OneNAS-space/luci-app-temp-status.git /tmp/luci-app-temp-status
+          cd /tmp/luci-app-temp-status
+          git checkout master
+          
+      - name: Add upstream and fetch
+        run: |
+          cd /tmp/luci-app-temp-status
+          git remote add upstream https://github.com/gSpotx2f/luci-app-temp-status.git || true
+          git fetch upstream master
+
+      - name: Update from upstream (excluding workflows and docs you want to keep)
+        run: |
+          cd /tmp/luci-app-temp-status
+          git checkout upstream/master -- . \
+            ':!.github/' \
+            ':!SECURITY.md' \
+            ':!LICENSE' \
+            ':!CONTRIBUTING.md'
+
+      - name: Commit and push
+        run: |
+          cd /tmp/luci-app-temp-status
+          git add -A
+          git commit -m "Sync from gSpotx2f" || echo "No changes"
+          git push origin master --force
+
+  sync-luci-theme-argon:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout private repo
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone target repo
+        run: |
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-theme-argon.git /tmp/luci-theme-argon
+          cd /tmp/luci-theme-argon
+          git checkout master
+          
+      - name: Add upstream and fetch
+        run: |
+          cd /tmp/luci-theme-argon
+          git remote add upstream https://github.com/jerrykuku/luci-theme-argon.git || true
+          git fetch upstream master
+
+      - name: Update from upstream (excluding workflows and docs you want to keep)
+        run: |
+          cd /tmp/luci-theme-argon
+          git checkout upstream/master -- . \
+            ':!.github/' \
+            ':!SECURITY.md' \
+            ':!LICENSE' \
+            ':!CONTRIBUTING.md'
+
+      - name: Commit and push
+        run: |
+          cd /tmp/luci-theme-argon
+          git add -A
+          git commit -m "Sync from jerrykuku" || echo "No changes"
+          git push origin master --force
+
+  sync-luci-app-vlmcsd:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone target repo
+        run: |
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-app-vlmcsd.git /tmp/luci-app-vlmcsd
+          cd /tmp/luci-app-vlmcsd
+          git checkout main
+
+      - name: Add upstream and fetch
+        run: |
+          cd /tmp/luci-app-vlmcsd
+          git remote add upstream https://github.com/kiddin9/kwrt-packages.git || true
+          git fetch upstream main
+
+      - name: Update luci-app-vlmcsd from upstream
+        run: |
+          cd /tmp/luci-app-vlmcsd
+          find . -mindepth 1 -maxdepth 1 \
+            ! -name '.git' \
+            ! -name '.github' \
+            ! -name 'LICENSE' \
+            ! -name 'SECURITY.md' \
+            -exec rm -rf {} +
+          git checkout upstream/main -- luci-app-vlmcsd
+          mv luci-app-vlmcsd/* .
+          rm -rf luci-app-vlmcsd
+
+      - name: Commit and push
+        run: |
+          cd /tmp/luci-app-vlmcsd
+          git add -A
+          git commit -m "Sync from kiddin9/kwrt-packages" || echo "No changes"
+          git push origin main --force
+
+  sync-openwrt-natmapt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout private repo
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone target repo
+        run: |
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-natmapt.git /tmp/openwrt-natmapt
+          cd /tmp/openwrt-natmapt
+          git checkout master
+          
+      - name: Add upstream and fetch
+        run: |
+          cd /tmp/openwrt-natmapt
+          git remote add upstream https://github.com/muink/openwrt-natmapt.git || true
+          git fetch upstream master
+
+      - name: Update from upstream (excluding workflows and docs you want to keep)
+        run: |
+          cd /tmp/openwrt-natmapt
+          git checkout upstream/master -- . \
+            ':!.github/workflows/build-release.yml' \
+            ':!SECURITY.md' \
+            ':!LICENSE' \
+            ':!CONTRIBUTING.md'
+
+      - name: Commit and push
+        run: |
+          cd /tmp/openwrt-natmapt
+          git add -A
+          git commit -m "Sync from muink" || echo "No changes"
+          git push origin master --force
+
+  sync-openwrt-passwall-packages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout private repo
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+      - name: Clone target repo
+        run: |
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-passwall-packages.git /tmp/passwall
+          cd /tmp/passwall
+          git checkout main
+
+      - name: Add upstream and fetch
+        run: |
+          cd /tmp/passwall
+          git remote add upstream https://github.com/xiaorouji/openwrt-passwall-packages.git || true
+          git fetch upstream main
+
+      - name: Update from upstream (excluding workflows and docs you want to keep)
+        run: |
+          cd /tmp/passwall
+          git checkout upstream/main -- . \
+            ':!.github/' \
+            ':!README.md' \
+            ':!SECURITY.md' \
+            ':!LICENSE' \
+            ':!CONTRIBUTING.md'
+
+      - name: Commit and push
+        run: |
+          cd /tmp/passwall
+          git add -A
+          git commit -m "Sync from xiaorouji" || echo "No changes"
+          git push origin main --force
+
+  sync-openwrt-stuntman:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout private repo
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone target repo
+        run: |
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-stuntman.git /tmp/openwrt-stuntman
+          cd /tmp/openwrt-stuntman
+          git checkout master
+          
+      - name: Add upstream and fetch
+        run: |
+          cd /tmp/openwrt-stuntman
+          git remote add upstream https://github.com/muink/openwrt-stuntman.git || true
+          git fetch upstream master
+
+      - name: Update from upstream (excluding workflows and docs you want to keep)
+        run: |
+          cd /tmp/openwrt-stuntman
+          git checkout upstream/master -- . \
+            ':!.github/workflows/build-release.yml' \
+            ':!SECURITY.md' \
+            ':!LICENSE' \
+            ':!CONTRIBUTING.md'
+
+      - name: Commit and push
+        run: |
+          cd /tmp/openwrt-stuntman
+          git add -A
+          git commit -m "Sync from muink" || echo "No changes"
+          git push origin master --force
+
+  sync-vlmcsd:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone target repo
+        run: |
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/vlmcsd.git /tmp/vlmcsd
+          cd /tmp/vlmcsd
+          git checkout main
+
+      - name: Add upstream and fetch
+        run: |
+          cd /tmp/vlmcsd
+          git remote add upstream https://github.com/kiddin9/kwrt-packages.git || true
+          git fetch upstream main
+
+      - name: Update vlmcsd from upstream
+        run: |
+          cd /tmp/vlmcsd
+          find . -mindepth 1 -maxdepth 1 \
+            ! -name '.git' \
+            ! -name '.github' \
+            ! -name 'LICENSE' \
+            ! -name 'SECURITY.md' \
+            -exec rm -rf {} +
+          git checkout upstream/main -- vlmcsd
+          mv vlmcsd/* .
+          rm -rf vlmcsd
+
+      - name: Commit and push
+        run: |
+          cd /tmp/vlmcsd
+          git add -A
+          git commit -m "Sync from kiddin9/kwrt-packages" || echo "No changes"
+          git push origin main --force
