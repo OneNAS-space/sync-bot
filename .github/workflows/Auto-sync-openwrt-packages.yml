@@ -428,7 +428,7 @@ jobs:
 
       - name: Clone target repo
         run: |
-          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-stuntman.git /tmp/openwrt-stuntman
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/OneNAS-space/openwrt-stuntman.git /tmp/openwrt-stuntman
           cd /tmp/openwrt-stuntman
           git checkout master
           
