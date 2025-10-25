@@ -287,7 +287,7 @@ jobs:
 
       - name: Commit and push
         run: |
-          cd /tmp/luci-app-log
+          cd /tmp/openwrt-natmapt
           git add -A
           git commit -m "Sync from muink" || echo "No changes"
           git push origin master --force
