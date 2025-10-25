@@ -442,3 +442,45 @@ jobs:
           git add -A
           git commit -m "Sync from gSpotx2f" || echo "No changes"
           git push origin master --force
+
+  sync-luci-app-log-viewer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout private repo
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone target repo
+        run: |
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/OneNAS-space/luci-app-log-viewer.git /tmp/luci-app-log-viewer
+          cd /tmp/luci-app-log-viewer
+          git checkout master
+          
+      - name: Add upstream and fetch
+        run: |
+          cd /tmp/luci-app-log-viewer
+          git remote add upstream https://github.com/gSpotx2f/luci-app-log.git || true
+          git fetch upstream master
+
+      - name: Update from upstream (excluding workflows and docs you want to keep)
+        run: |
+          cd /tmp/luci-app-log-viewer
+          git checkout upstream/master -- . \
+            ':!.github/' \
+            ':!SECURITY.md' \
+            ':!LICENSE' \
+            ':!CONTRIBUTING.md'
+
+      - name: Commit and push
+        run: |
+          cd /tmp/luci-app-log-viewer
+          git add -A
+          git commit -m "Sync from gSpotx2f" || echo "No changes"
+          git push origin master --force
