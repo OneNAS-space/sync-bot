@@ -267,18 +267,18 @@ jobs:
       - name: Clone target repo
         run: |
           git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-natmapt.git /tmp/openwrt-natmapt
-          cd /tmp/luci-app-log
+          cd /tmp/openwrt-natmapt
           git checkout master
           
       - name: Add upstream and fetch
         run: |
-          cd /tmp/luci-app-log
+          cd /tmp/openwrt-natmapt
           git remote add upstream https://github.com/muink/openwrt-natmapt.git || true
           git fetch upstream master
 
       - name: Update from upstream (excluding workflows and docs you want to keep)
         run: |
-          cd /tmp/luci-app-log
+          cd /tmp/openwrt-natmapt
           git checkout upstream/master -- . \
             ':!.github/workflows/' \
             ':!SECURITY.md' \
