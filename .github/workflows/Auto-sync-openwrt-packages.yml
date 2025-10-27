@@ -359,8 +359,7 @@ jobs:
         run: |
           cd /tmp/openwrt-natmapt
           git checkout upstream/master -- . \
-            ':!.github/workflows/build-release.yml' \
-            ':!.github/workflows/calculate.yml' \
+            ':!.github/' \
             ':!SECURITY.md' \
             ':!LICENSE' \
             ':!CONTRIBUTING.md'
