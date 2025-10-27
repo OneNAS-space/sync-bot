@@ -1,4 +1,6 @@
 name: Mirror multiple upstream repos to public forks
+permissions:
+  contents: write
 
 on:
   schedule:
