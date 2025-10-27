@@ -200,7 +200,7 @@ jobs:
         run: |
           cd /tmp/passwall2
           git add luci-app-passwall2
-          git commit -m "Sync luci-app-passwall2 from upstream" || echo "No changes"
+          git commit -m "Sync from xiaorouji" || echo "No changes"
           git push origin main --force
 
   sync-luci-app-temp-status:
@@ -358,6 +358,7 @@ jobs:
           cd /tmp/openwrt-natmapt
           git checkout upstream/master -- . \
             ':!.github/workflows/build-release.yml' \
+            ':!.github/workflows/calculate.yml' \
             ':!SECURITY.md' \
             ':!LICENSE' \
             ':!CONTRIBUTING.md'
@@ -443,6 +444,7 @@ jobs:
           cd /tmp/openwrt-stuntman
           git checkout upstream/master -- . \
             ':!.github/workflows/build-release.yml' \
+            ':!.github/workflows/calculate.yml' \
             ':!SECURITY.md' \
             ':!LICENSE' \
             ':!CONTRIBUTING.md'
