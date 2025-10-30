@@ -56,7 +56,7 @@ jobs:
 
       - name: Clone target repo
         run: |
-          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-app-advanced-reboot.git /tmp/luci-app-advanced-reboot
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/OneNAS-space/luci-app-advanced-reboot.git /tmp/luci-app-advanced-reboot
           cd /tmp/luci-app-advanced-reboot
           git checkout main
 
@@ -178,7 +178,7 @@ jobs:
 
       - name: Clone target repo
         run: |
-          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-app-natmapt /tmp/luci-app-natmapt
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/OneNAS-space/luci-app-natmapt /tmp/luci-app-natmapt
           cd /tmp/luci-app-natmapt
           git checkout master
 
@@ -295,7 +295,7 @@ jobs:
 
       - name: Clone target repo
         run: |
-          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-theme-argon.git /tmp/luci-theme-argon
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/OneNAS-space/luci-theme-argon.git /tmp/luci-theme-argon
           cd /tmp/luci-theme-argon
           git checkout master
           
@@ -331,7 +331,7 @@ jobs:
 
       - name: Clone target repo
         run: |
-          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/luci-app-vlmcsd.git /tmp/luci-app-vlmcsd
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/OneNAS-space/luci-app-vlmcsd.git /tmp/luci-app-vlmcsd
           cd /tmp/luci-app-vlmcsd
           git checkout main
 
@@ -377,7 +377,7 @@ jobs:
 
       - name: Clone target repo
         run: |
-          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/openwrt-natmapt.git /tmp/openwrt-natmapt
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/OneNAS-space/openwrt-natmapt.git /tmp/openwrt-natmapt
           cd /tmp/openwrt-natmapt
           git checkout master
           
@@ -499,7 +499,7 @@ jobs:
 
       - name: Clone target repo
         run: |
-          git clone https://x-access-token:${{ secrets.PAT }}@github.com/Jackie264/vlmcsd.git /tmp/vlmcsd
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/OneNAS-space/vlmcsd.git /tmp/vlmcsd
           cd /tmp/vlmcsd
           git checkout main
 
