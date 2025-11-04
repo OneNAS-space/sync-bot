@@ -14,6 +14,47 @@ env:
   TZ: Asia/Shanghai
   
 jobs:
+  sync-adguardhome:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone target repo
+        run: |
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/OneNAS-space/adguardhome.git /tmp/adguardhome
+          cd /tmp/adguardhome
+          git checkout master
+
+      - name: Add upstream and fetch
+        run: |
+          cd /tmp/adguardhome
+          git remote add upstream https://github.com/openwrt/packages.git || true
+          git fetch upstream master || git fetch upstream master
+
+      - name: Update AdGuard Home from upstream
+        run: |
+          cd /tmp/adguardhome
+          find . -mindepth 1 -maxdepth 1 \
+            ! -name '.git' \
+            ! -name '.github' \
+            ! -name 'LICENSE' \
+            ! -name 'SECURITY.md' \
+            -exec rm -rf {} +
+        
+          git checkout upstream/master -- net/adguardhome || git checkout upstream/master -- net/adguardhome
+          mv net/adguardhome/* .
+          rm -rf net
+
+      - name: Commit and push
+        run: |
+          cd /tmp/adguardhome
+          git add -A
+          git commit -m "Sync from openwrt/packages/net/adguardhome" || echo "No changes"
+          git push origin master --force
+
   sync-luci-app-advanced:
     runs-on: ubuntu-latest
     steps:
