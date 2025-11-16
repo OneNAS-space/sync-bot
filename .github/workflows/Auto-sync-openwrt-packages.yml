@@ -475,6 +475,7 @@ jobs:
           cd /tmp/passwall
           git checkout upstream/main -- . \
             ':!.github/' \
+            ':!v2ray-geodata/' \
             ':!README.md' \
             ':!SECURITY.md' \
             ':!LICENSE' \
