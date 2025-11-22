@@ -78,7 +78,12 @@ jobs:
       - name: Update from upstream (excluding workflows)
         run: |
           cd /tmp/luci-app-advanced
-          git checkout upstream/master -- . ':!.github/workflows'
+          git checkout upstream/master -- . \
+            ':!.github/' \
+            ':!README.md' \
+            ':!SECURITY.md' \
+            ':!LICENSE' \
+            ':!CONTRIBUTING.md'
 
       - name: Commit and push
         run: |
