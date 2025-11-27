@@ -358,7 +358,8 @@ jobs:
             ':!.github/' \
             ':!SECURITY.md' \
             ':!LICENSE' \
-            ':!CONTRIBUTING.md'
+            ':!CONTRIBUTING.md' \
+            ':!Makefile'
 
       - name: Commit and push
         run: |
