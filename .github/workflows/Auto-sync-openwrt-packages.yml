@@ -325,49 +325,6 @@ jobs:
           git commit -m "Sync from gSpotx2f" || echo "No changes"
           git push origin master --force
 
-  sync-luci-theme-argon:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout private repo
-        uses: actions/checkout@v5
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-
-      - name: Set up Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Clone target repo
-        run: |
-          git clone https://x-access-token:${{ secrets.PAT }}@github.com/OneNAS-space/luci-theme-argon.git /tmp/luci-theme-argon
-          cd /tmp/luci-theme-argon
-          git checkout master
-          
-      - name: Add upstream and fetch
-        run: |
-          cd /tmp/luci-theme-argon
-          git remote add upstream https://github.com/jerrykuku/luci-theme-argon.git || true
-          git fetch upstream master
-
-      - name: Update from upstream (excluding workflows and docs you want to keep)
-        run: |
-          cd /tmp/luci-theme-argon
-          git checkout upstream/master -- . \
-            ':!.github/' \
-            ':!SECURITY.md' \
-            ':!LICENSE' \
-            ':!CONTRIBUTING.md' \
-            ':!Makefile'
-
-      - name: Commit and push
-        run: |
-          cd /tmp/luci-theme-argon
-          git add -A
-          git commit -m "Sync from jerrykuku" || echo "No changes"
-          git push origin master --force
-
   sync-luci-app-vlmcsd:
     runs-on: ubuntu-latest
     steps:
@@ -407,6 +364,53 @@ jobs:
           git add -A
           git commit -m "Sync from kiddin9/kwrt-packages" || echo "No changes"
           git push origin main --force
+
+  sync-luci-theme-argon:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout private repo
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone target repo
+        run: |
+          git clone https://x-access-token:${{ secrets.PAT }}@github.com/OneNAS-space/luci-theme-argon.git /tmp/luci-theme-argon
+          cd /tmp/luci-theme-argon
+          git checkout master
+          
+      - name: Add upstream and fetch
+        run: |
+          cd /tmp/luci-theme-argon
+          git remote add upstream https://github.com/jerrykuku/luci-theme-argon.git || true
+          git fetch upstream master
+
+      - name: Update from upstream (excluding workflows and docs you want to keep)
+        run: |
+          cd /tmp/luci-theme-argon
+          git checkout upstream/master -- . \
+            ':!.github/' \
+            ':!SECURITY.md' \
+            ':!LICENSE' \
+            ':!CONTRIBUTING.md' \
+            ':!README.md' \
+            ':!README_ZH.md' \
+            ':!RELEASE.md' \
+            ':!RELEASE_ZH.md' \
+            ':!Makefile'
+
+      - name: Commit and push
+        run: |
+          cd /tmp/luci-theme-argon
+          git add -A
+          git commit -m "Sync from jerrykuku" || echo "No changes"
+          git push origin master --force
 
   sync-openwrt-natmapt:
     runs-on: ubuntu-latest
