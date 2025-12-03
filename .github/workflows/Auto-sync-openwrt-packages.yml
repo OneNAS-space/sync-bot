@@ -55,42 +55,42 @@ jobs:
           git commit -m "Sync from openwrt/packages/net/adguardhome" || echo "No changes"
           git push origin master --force
 
-  sync-luci-app-advanced:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Clone target repo
-        run: |
-          git clone https://x-access-token:${{ secrets.PAT }}@github.com/OneNAS-space/luci-app-advanced.git /tmp/luci-app-advanced
-          cd /tmp/luci-app-advanced
-          git checkout master
-
-      - name: Add upstream and fetch
-        run: |
-          cd /tmp/luci-app-advanced
-          git remote add upstream https://github.com/sirpdboy/luci-app-advanced.git || true
-          git fetch upstream master
-
-      - name: Update from upstream (excluding workflows)
-        run: |
-          cd /tmp/luci-app-advanced
-          git checkout upstream/master -- . \
-            ':!.github/' \
-            ':!README.md' \
-            ':!SECURITY.md' \
-            ':!LICENSE' \
-            ':!CONTRIBUTING.md'
-
-      - name: Commit and push
-        run: |
-          cd /tmp/luci-app-advanced
-          git add -A
-          git commit -m "Sync from sirpdboy" || echo "No changes"
-          git push origin master --force
+#  sync-luci-app-advanced:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Set up Git
+#        run: |
+#          git config --global user.name "github-actions[bot]"
+#          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+#
+#      - name: Clone target repo
+#        run: |
+#          git clone https://x-access-token:${{ secrets.PAT }}@github.com/OneNAS-space/luci-app-advanced.git /tmp/luci-app-advanced
+#          cd /tmp/luci-app-advanced
+#          git checkout master
+#
+#      - name: Add upstream and fetch
+#        run: |
+#          cd /tmp/luci-app-advanced
+#          git remote add upstream https://github.com/sirpdboy/luci-app-advanced.git || true
+#          git fetch upstream master
+#
+#      - name: Update from upstream (excluding workflows)
+#        run: |
+#          cd /tmp/luci-app-advanced
+#          git checkout upstream/master -- . \
+#            ':!.github/' \
+#            ':!README.md' \
+#            ':!SECURITY.md' \
+#            ':!LICENSE' \
+#            ':!CONTRIBUTING.md'
+#
+#      - name: Commit and push
+#        run: |
+#          cd /tmp/luci-app-advanced
+#          git add -A
+#          git commit -m "Sync from sirpdboy" || echo "No changes"
+#          git push origin master --force
 
   sync-luci-app-advanced-reboot:
     runs-on: ubuntu-latest
