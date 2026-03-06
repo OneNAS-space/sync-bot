@@ -150,13 +150,13 @@ jobs:
       - name: Add upstream and fetch
         run: |
           cd /tmp/luci-app-advanced-reboot
-          git remote add upstream https://github.com/stangri/luci-app-advanced-reboot.git || true
+          git remote add upstream https://github.com/mossdef-org/luci-app-advanced-reboot.git || true
           git fetch upstream main
 
       - name: Update from upstream (excluding workflows)
         run: |
           cd /tmp/luci-app-advanced-reboot
-          git checkout upstream/main -- . ':!.github/workflows'
+          git checkout upstream/main -- . ':!.github/workflows/openwrt-release.yml'
 
       - name: Commit and push
         run: |
