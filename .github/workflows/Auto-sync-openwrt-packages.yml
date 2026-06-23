@@ -543,4 +543,4 @@ jobs:
           cd /tmp/netbird
           git add -A
           git commit -m "Sync from openwrt/packages/net/netbird" || echo "No changes"
-          git push origin master --force
+          git push origin main --force
