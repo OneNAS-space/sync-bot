@@ -84,7 +84,7 @@ jobs:
         run: |
           cd /tmp/luci-app-advanced-reboot
           git add -A
-          git commit -m "Sync from stangri" || echo "No changes"
+          git commit -m "Sync from mossdef-org" || echo "No changes"
           git push origin main --force
           
   sync-luci-app-cpu-status:
