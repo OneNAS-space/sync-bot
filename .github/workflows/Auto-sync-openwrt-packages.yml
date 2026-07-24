@@ -78,7 +78,11 @@ jobs:
       - name: Update from upstream (excluding workflows)
         run: |
           cd /tmp/luci-app-advanced-reboot
-          git checkout upstream/main -- . ':!.github/workflows/openwrt-release.yml'
+          git checkout upstream/main -- . \
+            ':!.github/' \
+            ':!SECURITY.md' \
+            ':!LICENSE' \
+            ':!CONTRIBUTING.md'
 
       - name: Commit and push
         run: |
