@@ -1,0 +1,25 @@
+From 0c07d09c24a524da727a6a90fbef75cb15daf198 Mon Sep 17 00:00:00 2001
+From: Jackie264 <jackie.han@gmail.com>
+Date: Wed, 16 Sep 2026 15:02:50 +0800
+Subject: [PATCH] Update vermagic file handling in kernel defaults
+
+Replace grep command with cp for vermagic file.
+
+Signed-off-by: Jackie264 <jackie.han@gmail.com>
+---
+ include/kernel-defaults.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/kernel-defaults.mk b/include/kernel-defaults.mk
+index eb852a04cabcae..21de8c2b9a5ff5 100644
+--- a/include/kernel-defaults.mk
++++ b/include/kernel-defaults.mk
+@@ -126,7 +126,7 @@ define Kernel/Configure/Default
+ 		cp $(LINUX_DIR)/.config.set $(LINUX_DIR)/.config.prev; \
+ 	}
+ 	$(_SINGLE) [ -d $(LINUX_DIR)/user_headers ] || $(KERNEL_MAKE) $(if $(findstring uml,$(BOARD)),ARCH=$(ARCH)) INSTALL_HDR_PATH=$(LINUX_DIR)/user_headers headers_install
+-	grep '=[ym]' $(LINUX_DIR)/.config.set | LC_ALL=C sort | $(MKHASH) md5 > $(LINUX_DIR)/.vermagic
++	cp $(TOPDIR)/vermagic $(LINUX_DIR)/.vermagic
+ endef
+ 
+ define Kernel/Configure/Initramfs
