@@ -431,7 +431,7 @@ PATCH_SPECS = [
     },
     {
         'tree': 'mac80211',
-        'name': '701-ath12k-support-memory-type-10',
+        'name': '701-wifi-ath12k-support-memory-type-10',
         'filename': 'qmi.c',
         'path_must_contain': ('mac80211', 'backports', 'drivers/net/wireless/ath/ath12k'),
         'parent_dir_exact': 'ath12k',
