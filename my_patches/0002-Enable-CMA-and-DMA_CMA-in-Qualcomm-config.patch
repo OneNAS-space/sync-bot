@@ -1,0 +1,39 @@
+From 1f9df57afaf9fe57844c014f02dd43946db95118 Mon Sep 17 00:00:00 2001
+From: Jackie264 <jackie.han@gmail.com>
+Date: Wed, 16 Sep 2026 13:25:39 +0800
+Subject: [PATCH] Enable CMA and DMA_CMA in kernel config
+
+Signed-off-by: Jackie264 <jackie.han@gmail.com>
+---
+ target/linux/qualcommbe/config-6.18 | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/target/linux/qualcommbe/config-6.18 b/target/linux/qualcommbe/config-6.18
+index d5ba7d17595b45..64f8be31bb39d7 100644
+--- a/target/linux/qualcommbe/config-6.18
++++ b/target/linux/qualcommbe/config-6.18
+@@ -67,6 +67,16 @@ CONFIG_CC_HAVE_STACKPROTECTOR_SYSREG=y
+ # CONFIG_CLK_X1E80100_TCSRCC is not set
+ # CONFIG_CLK_X1P42100_GPUCC is not set
+ CONFIG_CLONE_BACKWARDS=y
++CONFIG_CMA=y
++CONFIG_CMA_ALIGNMENT=8
++CONFIG_CMA_AREAS=8
++# CONFIG_CMA_DEBUGFS is not set
++CONFIG_CMA_SIZE_MBYTES=256
++# CONFIG_CMA_SIZE_SEL_MAX is not set
++CONFIG_CMA_SIZE_SEL_MBYTES=y
++# CONFIG_CMA_SIZE_SEL_MIN is not set
++# CONFIG_CMA_SIZE_SEL_PERCENTAGE is not set
++# CONFIG_CMA_SYSFS is not set
+ CONFIG_COMMON_CLK=y
+ CONFIG_COMMON_CLK_QCOM=y
+ CONFIG_COMPACT_UNEVICTABLE_DEFAULT=1
+@@ -124,6 +134,7 @@ CONFIG_DEBUG_INFO=y
+ CONFIG_DEV_COREDUMP=y
+ CONFIG_DMADEVICES=y
+ CONFIG_DMA_BOUNCE_UNALIGNED_KMALLOC=y
++CONFIG_DMA_CMA=y
+ CONFIG_DMA_DIRECT_REMAP=y
+ CONFIG_DMA_ENGINE=y
+ CONFIG_DMA_NEED_SYNC=y
