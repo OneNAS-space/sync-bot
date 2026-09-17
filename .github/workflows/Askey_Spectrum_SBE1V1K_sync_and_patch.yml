@@ -10,7 +10,7 @@ env:
   TARGET_BRANCH: main
 
 jobs:
-  sync-and-patch:
+  sync-openwrt_main-and-auto_gen_patch:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -86,9 +86,6 @@ jobs:
           TARGET_TOKEN: ${{ secrets.PAT }}
         run: |
           cd openwrt-src
-
-          # 上游 openwrt 自带的 .github 必须删掉：
-          # 用 PAT 推送 workflow 文件需要 workflow scope，删掉就不用给这个权限
           rm -rf .github
 
           git config user.name "github-actions[bot]"
@@ -99,5 +96,4 @@ jobs:
           git add -A
           git commit -m "Auto-gen patches and configs for Askey SBE1V1K"
 
-          # 本地当前分支就是 openwrt 的 main，直接映射推到目标仓库的 main
           git push target HEAD:"${TARGET_BRANCH}" --force
