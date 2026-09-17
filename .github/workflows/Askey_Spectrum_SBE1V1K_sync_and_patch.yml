@@ -1,0 +1,103 @@
+name: Sync OpenWrt and Patch to Askey_Spectrum_SBE1V1K
+
+on:
+  schedule:
+    - cron: '0 */12 * * *'
+  workflow_dispatch:
+
+env:
+  TARGET_REPO: OneNAS-space/Askey_Spectrum_SBE1V1K
+  TARGET_BRANCH: main
+
+jobs:
+  sync-and-patch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout Config Repo (sync-bot)
+        uses: actions/checkout@v7
+        with:
+          path: config-repo
+
+      - name: Configure Git Identity
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install OpenWrt Build Deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential gawk git gettext \
+            libncurses5-dev libssl-dev python3 rsync unzip wget xsltproc \
+            file quilt
+
+      - name: Fetch OpenWrt Upstream
+        run: |
+          git clone --single-branch -b main https://github.com/openwrt/openwrt.git openwrt-src
+
+      - name: Apply OpenWrt Tree Patches & Stage Kernel Patches
+        run: |
+          cd openwrt-src
+          patch -p1 < ../config-repo/my_patches/0000-Update-vermagic-handling-in-kernel_defaults.patch
+          patch -p1 < ../config-repo/my_patches/0001-dts-add-bootargs-CMA-reserved-mem-phy-led-config.patch
+          patch -p1 < ../config-repo/my_patches/0002-Enable-CMA-and-DMA_CMA-in-Qualcomm-config.patch
+          patch -p1 < ../config-repo/my_patches/0003-change-timezone-config_generate.patch
+          patch -p1 < ../config-repo/my_patches/0004-Add-LED-configuration-for-SBE1V1K-board.patch
+
+      - name: Select Target (qualcommbe / ipq95xx)
+        run: |
+          cd openwrt-src
+          echo "CONFIG_TARGET_qualcommbe=y" > .config
+          echo "CONFIG_TARGET_qualcommbe_ipq95xx=y" >> .config
+          echo "CONFIG_TARGET_qualcommbe_ipq95xx_DEVICE_askey_sbe1v1k=y" >> .config
+          make defconfig
+
+      - name: Prepare Upstream Baseline Sources
+        run: |
+          cd openwrt-src
+          make target/linux/{download,prepare}
+          make package/kernel/mac80211/{download,prepare}
+
+      - name: Auto-Apply Dynamic Kernel Patches
+        run: |
+          cd openwrt-src
+          export ROOT_DIR=$PWD
+          export ACTUAL_KERNEL_DIR=$(ls -d build_dir/target-*/linux-*/linux-6.* | grep -v 'orig' | head -n 1)
+          export KERNEL_DIR="$ROOT_DIR/$ACTUAL_KERNEL_DIR"
+          export MAC80211_DIR="$ROOT_DIR/$(ls -d build_dir/target-*/linux-*/mac80211-regular/backports-* | head -n 1)"
+          python3 ../config-repo/scripts/apply_dynamic_patches.py
+
+      - name: Fetch and Set Official Vermagic
+        run: |
+          cd openwrt-src
+          MANIFEST_URL="https://downloads.openwrt.org/snapshots/targets/qualcommbe/ipq95xx/openwrt-qualcommbe-ipq95xx.manifest"
+          VERMAGIC=$(curl -sL "$MANIFEST_URL" | grep "^kernel - " | awk -F'~' '{print $2}' | cut -d'-' -f1)
+          if [ -z "$VERMAGIC" ]; then
+            echo "Error: Failed to extract vermagic!"
+            exit 1
+          fi
+          echo "Extracted vermagic: $VERMAGIC"
+          echo "$VERMAGIC" > vermagic
+
+      - name: Commit and Push to Target Repo
+        env:
+          TARGET_TOKEN: ${{ secrets.PAT }}
+        run: |
+          cd openwrt-src
+
+          # 上游 openwrt 自带的 .github 必须删掉：
+          # 用 PAT 推送 workflow 文件需要 workflow scope，删掉就不用给这个权限
+          rm -rf .github
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git remote add target "https://x-access-token:${TARGET_TOKEN}@github.com/${TARGET_REPO}.git"
+
+          git add -A
+          git commit -m "Auto-gen patches and configs for Askey SBE1V1K"
+
+          # 本地当前分支就是 openwrt 的 main，直接映射推到目标仓库的 main
+          git push target HEAD:"${TARGET_BRANCH}" --force
