@@ -98,7 +98,7 @@ jobs:
         run: |
           cd openwrt-src
           rm -rf .github
-          cp ../my_files/README_SBE1V1K_cn.md ./
+          cp ../config-repo/my_files/*.md ./
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
