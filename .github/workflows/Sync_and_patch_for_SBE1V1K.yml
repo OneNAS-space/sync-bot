@@ -2,7 +2,7 @@ name: Sync OpenWrt and Patch for SBE1V1K
 
 on:
   schedule:
-    - cron: '0 */12 * * *'
+    - cron: '0 */6 * * *'
   workflow_dispatch:
   push:
     branches:
