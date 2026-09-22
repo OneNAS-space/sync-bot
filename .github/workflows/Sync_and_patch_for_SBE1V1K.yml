@@ -56,7 +56,6 @@ jobs:
           patch -p1 < ../config-repo/my_patches/0002-Enable-CMA-and-DMA_CMA-in-Qualcomm-config.patch
           patch -p1 < ../config-repo/my_patches/0003-change-timezone-config_generate.patch
           patch -p1 < ../config-repo/my_patches/0004-Add-LED-configuration-for-SBE1V1K-board.patch
-          patch -p1 < ../config-repo/my_patches/0005-Kernel-image-misaligned-at-boot-ipq95xx.patch
 
       - name: Select Target (qualcommbe / ipq95xx)
         run: |
