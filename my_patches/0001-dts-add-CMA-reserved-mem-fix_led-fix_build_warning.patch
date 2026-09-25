@@ -1,17 +1,17 @@
-From 18a3a870ff005ccce8bcedae99dddfee3f65062d Mon Sep 17 00:00:00 2001
+From 2f6d863f698d9c21eaea037076dd585c97ee7b96 Mon Sep 17 00:00:00 2001
 From: Jackie Han <jackie.han@gmail.com>
-Date: Fri, 25 Sep 2026 08:26:43 +0800
-Subject: [PATCH] Modify device tree for ipq9570-sbe1v1k
+Date: Fri, 25 Sep 2026 11:14:13 +0800
+Subject: [PATCH] Modify ipq9570-sbe1v1k.dts for memory and crypto settings
 
-Updated device tree source for ipq9570-sbe1v1k, modifying memory allocation and regulator settings.
+Updated device tree source for ipq9570-sbe1v1k.dts with new memory configurations and disabled crypto nodes.
 
 Signed-off-by: Jackie Han <jackie.han@gmail.com>
 ---
- .../linux/qualcommbe/dts/ipq9570-sbe1v1k.dts  | 65 +++++++++++++++++--
- 1 file changed, 59 insertions(+), 6 deletions(-)
+ .../linux/qualcommbe/dts/ipq9570-sbe1v1k.dts  | 75 +++++++++++++++----
+ 1 file changed, 60 insertions(+), 15 deletions(-)
 
 diff --git a/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts b/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts
-index f39badf135a028..ec560ca2b50c09 100644
+index f39badf135a028..1abc8c8142b7d4 100644
 --- a/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts
 +++ b/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts
 @@ -23,13 +23,25 @@
@@ -40,7 +40,7 @@ index f39badf135a028..ec560ca2b50c09 100644
  	};
  
  	regulator_fixed_3p3: s3300 {
-@@ -171,6 +183,19 @@
+@@ -171,26 +183,33 @@
  	status = "okay";
  };
  
@@ -60,10 +60,16 @@ index f39badf135a028..ec560ca2b50c09 100644
  &rpm_requests {
  	regulators {
  		compatible = "qcom,rpm-mp5496-regulators";
-@@ -184,13 +209,15 @@
- 		* the regulators are brought up with 725mV which is sufficient for all the
- 		* corner parts to operate at 800MHz
- 		*/
+ 
+ 		ipq9574_s1: s1 {
+-		/*
+-		* During kernel bootup, the SoC runs at 800MHz with 875mV set by the bootloaders.
+-		* During regulator registration, kernel not knowing the initial voltage,
+-		* considers it as zero and brings up the regulators with minimum supported voltage.
+-		* Update the regulator-min-microvolt with SVS voltage of 725mV so that
+-		* the regulators are brought up with 725mV which is sufficient for all the
+-		* corner parts to operate at 800MHz
+-		*/
 -			regulator-min-microvolt = <725000>;
 +			regulator-min-microvolt = <587500>;
  			regulator-max-microvolt = <1075000>;
@@ -80,7 +86,7 @@ index f39badf135a028..ec560ca2b50c09 100644
  			regulator-always-on;
  			regulator-boot-on;
  		};
-@@ -208,6 +235,9 @@
+@@ -208,6 +227,9 @@
  	pinctrl-names = "default";
  	status = "okay";
  
@@ -90,7 +96,7 @@ index f39badf135a028..ec560ca2b50c09 100644
  	card@0 {
  		compatible = "mmc-card";
  		reg = <0>;
-@@ -488,6 +518,23 @@
+@@ -488,6 +510,23 @@
  		reset-gpios = <&tlmm 41 GPIO_ACTIVE_LOW>;
  		reset-assert-us = <40000>;
  		reset-deassert-us = <150000>;
@@ -114,7 +120,7 @@ index f39badf135a028..ec560ca2b50c09 100644
  	};
  
  	ethernet-phy-package@16 {
-@@ -497,6 +544,12 @@
+@@ -497,6 +536,12 @@
  		reg = <16>;
  
  		qcom,package-mode = "qsgmii";
@@ -127,7 +133,7 @@ index f39badf135a028..ec560ca2b50c09 100644
  
  		qca8075_18: ethernet-phy@18 {
  			compatible = "ethernet-phy-ieee802.3-c22";
-@@ -617,7 +670,7 @@
+@@ -617,7 +662,7 @@
  
  	pcie@0 {
  		device_type = "pci";
@@ -136,9 +142,12 @@ index f39badf135a028..ec560ca2b50c09 100644
  		#address-cells = <3>;
  		#size-cells = <2>;
  		ranges;
-@@ -669,7 +722,7 @@
+@@ -667,9 +712,9 @@
+ 	wake-gpios = <&tlmm 33 GPIO_ACTIVE_LOW>;
+ 	status = "okay";
  
- 	pcie@0,0 {
+-	pcie@0,0 {
++	pcie@0 {
  		device_type = "pci";
 -		reg = <0x0 0x0 0x2 0x0 0x0>;
 +		reg = <0x0 0x0 0x0 0x0 0x0>;
