@@ -1,15 +1,17 @@
-From 83ca55b82ab0fa8e3388d7155fd552f0f493f864 Mon Sep 17 00:00:00 2001
-From: Jackie264 <jackie.han@gmail.com>
-Date: Wed, 16 Sep 2026 10:21:54 +0800
-Subject: [PATCH] Update device tree for ipq9570-sbe1v1k
+From 18a3a870ff005ccce8bcedae99dddfee3f65062d Mon Sep 17 00:00:00 2001
+From: Jackie Han <jackie.han@gmail.com>
+Date: Fri, 25 Sep 2026 08:26:43 +0800
+Subject: [PATCH] Modify device tree for ipq9570-sbe1v1k
 
-Signed-off-by: Jackie264 <jackie.han@gmail.com>
+Updated device tree source for ipq9570-sbe1v1k, modifying memory allocation and regulator settings.
+
+Signed-off-by: Jackie Han <jackie.han@gmail.com>
 ---
- .../linux/qualcommbe/dts/ipq9570-sbe1v1k.dts  | 58 +++++++++++++++++--
- 1 file changed, 54 insertions(+), 4 deletions(-)
+ .../linux/qualcommbe/dts/ipq9570-sbe1v1k.dts  | 65 +++++++++++++++++--
+ 1 file changed, 59 insertions(+), 6 deletions(-)
 
 diff --git a/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts b/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts
-index f39badf135a028..2a1a3f7c211fb7 100644
+index f39badf135a028..ec560ca2b50c09 100644
 --- a/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts
 +++ b/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts
 @@ -23,13 +23,25 @@
@@ -78,7 +80,17 @@ index f39badf135a028..2a1a3f7c211fb7 100644
  			regulator-always-on;
  			regulator-boot-on;
  		};
-@@ -488,6 +515,23 @@
+@@ -208,6 +235,9 @@
+ 	pinctrl-names = "default";
+ 	status = "okay";
+ 
++	#address-cells = <1>;
++	#size-cells = <0>;
++
+ 	card@0 {
+ 		compatible = "mmc-card";
+ 		reg = <0>;
+@@ -488,6 +518,23 @@
  		reset-gpios = <&tlmm 41 GPIO_ACTIVE_LOW>;
  		reset-assert-us = <40000>;
  		reset-deassert-us = <150000>;
@@ -102,7 +114,7 @@ index f39badf135a028..2a1a3f7c211fb7 100644
  	};
  
  	ethernet-phy-package@16 {
-@@ -497,6 +541,12 @@
+@@ -497,6 +544,12 @@
  		reg = <16>;
  
  		qcom,package-mode = "qsgmii";
@@ -115,3 +127,21 @@ index f39badf135a028..2a1a3f7c211fb7 100644
  
  		qca8075_18: ethernet-phy@18 {
  			compatible = "ethernet-phy-ieee802.3-c22";
+@@ -617,7 +670,7 @@
+ 
+ 	pcie@0 {
+ 		device_type = "pci";
+-		reg = <0x0 0x0 0x1 0x0 0x0>;
++		reg = <0x0 0x0 0x0 0x0 0x0>;
+ 		#address-cells = <3>;
+ 		#size-cells = <2>;
+ 		ranges;
+@@ -669,7 +722,7 @@
+ 
+ 	pcie@0,0 {
+ 		device_type = "pci";
+-		reg = <0x0 0x0 0x2 0x0 0x0>;
++		reg = <0x0 0x0 0x0 0x0 0x0>;
+ 		#address-cells = <3>;
+ 		#size-cells = <2>;
+ 		ranges;
