@@ -1,22 +1,6 @@
 # If you don't write 'tree', the default is 'kernel' (all the original entries remain unchanged, and there is no need to fill in this field)
 PATCH_SPECS = [
     {
-        'name': '0362-regulator-qcom_smd-fix-MP5496-supply-names',
-        'filename': 'qcom_smd-regulator.c',
-        'path_must_contain': ('regulator',),
-        'kind': 'literal',
-        'replacements': [
-            ('{ "s1", QCOM_SMD_RPM_SMPA, 1, &mp5496_smps, "s1" },',
-             '{ "s1", QCOM_SMD_RPM_SMPA, 1, &mp5496_smps, "vin1" },'),
-            ('{ "s2", QCOM_SMD_RPM_SMPA, 2, &mp5496_smps, "s2" },',
-             '{ "s2", QCOM_SMD_RPM_SMPA, 2, &mp5496_smps, "vin2" },'),
-            ('{ "l2", QCOM_SMD_RPM_LDOA, 2, &mp5496_ldoa2, "l2" },',
-             '{ "l2", QCOM_SMD_RPM_LDOA, 2, &mp5496_ldoa2, "vin2" },'),
-            ('{ "l5", QCOM_SMD_RPM_LDOA, 5, &mp5496_ldoa2, "l5" },',
-             '{ "l5", QCOM_SMD_RPM_LDOA, 5, &mp5496_ldoa2, "vin5" },'),
-        ],
-    },
-    {
         'name': '0363-net-ethernet-qualcomm-honor-safe-NAPI-budgets',
         'filename': 'edma.c',
         'path_must_contain': ('ethernet', 'qualcomm', 'ppe'),
@@ -61,6 +45,22 @@ PATCH_SPECS = [
         'replacements': [
             (r'#define\s+EDMA_TX_NAPI_WORK_DEF\s+\d+', '#define EDMA_TX_NAPI_WORK_DEF\t64'),
             (r'#define\s+EDMA_TX_NAPI_WORK_MAX\s+\d+', '#define EDMA_TX_NAPI_WORK_MAX\t64'),
+        ],
+    },
+    {
+        'name': '0364-regulator-qcom_smd-fix-MP5496-supply-names',
+        'filename': 'qcom_smd-regulator.c',
+        'path_must_contain': ('regulator',),
+        'kind': 'literal',
+        'replacements': [
+            ('{ "s1", QCOM_SMD_RPM_SMPA, 1, &mp5496_smps, "s1" },',
+             '{ "s1", QCOM_SMD_RPM_SMPA, 1, &mp5496_smps, "vin1" },'),
+            ('{ "s2", QCOM_SMD_RPM_SMPA, 2, &mp5496_smps, "s2" },',
+             '{ "s2", QCOM_SMD_RPM_SMPA, 2, &mp5496_smps, "vin2" },'),
+            ('{ "l2", QCOM_SMD_RPM_LDOA, 2, &mp5496_ldoa2, "l2" },',
+             '{ "l2", QCOM_SMD_RPM_LDOA, 2, &mp5496_ldoa2, "vin2" },'),
+            ('{ "l5", QCOM_SMD_RPM_LDOA, 5, &mp5496_ldoa2, "l5" },',
+             '{ "l5", QCOM_SMD_RPM_LDOA, 5, &mp5496_ldoa2, "vin5" },'),
         ],
     },
     {
