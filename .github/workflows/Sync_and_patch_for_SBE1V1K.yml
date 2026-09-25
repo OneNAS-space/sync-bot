@@ -52,7 +52,7 @@ jobs:
         run: |
           cd openwrt-src
           patch -p1 < ../config-repo/my_patches/0000-Update-vermagic-handling-in-kernel_defaults.patch
-          patch -p1 < ../config-repo/my_patches/0001-dts-add-bootargs-CMA-reserved-mem-phy-led-config.patch
+          patch -p1 < ../config-repo/my_patches/0001-dts-add-CMA-reserved-mem-fix_led-fix_build_warning.patch
           patch -p1 < ../config-repo/my_patches/0002-Enable-CMA-and-DMA_CMA-in-Qualcomm-config.patch
           patch -p1 < ../config-repo/my_patches/0003-change-timezone-config_generate.patch
           patch -p1 < ../config-repo/my_patches/0004-Add-LED-configuration-for-SBE1V1K-board.patch
