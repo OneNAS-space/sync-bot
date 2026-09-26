@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os, sys, re, glob, difflib, tempfile, subprocess
 
-from patch_specs import PATCH_SPECS
+from patch_specs import PATCH_SPECS, PATCH_HEADERS
 
 TREES = {
     'kernel': {
@@ -124,6 +124,28 @@ def make_unified_diff(base_dir, path, original, updated):
 
     return ''.join(lines)
 
+def format_patch_header(name):
+    """把 PATCH_HEADERS[name] 拼成 git-am 兼容的邮件头。
+    缺失时返回 None，调用方负责决定是报错还是允许无头输出。"""
+    meta = PATCH_HEADERS.get(name)
+    if not meta or not meta.get('author') or not meta.get('subject'):
+        return None
+ 
+    lines = [
+        'From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001\n',
+        f"From: {meta['author']}\n",
+        f"Date: {meta.get('date', 'Mon, 1 Jan 2026 00:00:00 +0000')}\n",
+        f"Subject: [PATCH] {meta['subject']}\n",
+        '\n',
+    ]
+    if meta.get('body'):
+        lines.append(meta['body'] + '\n')
+        lines.append('\n')
+    for sob in meta.get('signed_off_by', []):
+        lines.append(f"Signed-off-by: {sob}\n")
+    lines.append('\n')
+    return ''.join(lines)
+
 def apply_spec(content, spec, label):
     applied_count = 0
     for idx, item in enumerate(spec['replacements'], 1):
@@ -202,6 +224,12 @@ def main():
                 print(f"  !! [{name}] Tip: The file {spec['filename']} was found, but it did not match the replacement content (the code has been modified or the context is inconsistent)")
 
         if combined_diff:
+            header = format_patch_header(name)
+            if header is None:
+                print(f"  !! [{name}] 警告：PATCH_HEADERS 里没有登记这个补丁的 From/Date/Subject 信息，"
+                      f"生成的文件不带 git-am 邮件头，OpenWrt 的 formality check 会报同样的警告。"
+                      f"提交前请在 patch_specs.py 的 PATCH_HEADERS 里补上真实来源。")
+                header = ''
             patch_dir = os.path.join(root_dir, TREES[tree_key]['patch_dir_rel'])
             os.makedirs(patch_dir, exist_ok=True)
             out_path = os.path.join(patch_dir, f'{name}.patch')
