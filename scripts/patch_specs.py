@@ -1,4 +1,66 @@
-# If you don't write 'tree', the default is 'kernel' (all the original entries remain unchanged, and there is no need to fill in this field)
+#!/usr/bin/env python3
+"""
+所有自动生成补丁的定义。
+ 
+每条 spec 的字段：
+  tree              : 目标源码树，见 apply_dynamic_patches.py 里的 TREES（不写默认 'kernel'）
+  name              : 输出补丁文件名（不含 .patch），同名的多条 spec 会合并进同一份补丁
+  filename          : 目标文件名
+  path_must_contain : 元组，full_path 必须包含的每一段子串（粗筛，可能有误伤，配合 parent_dir_exact 精确排除）
+  parent_dir_exact  : 可选，要求文件的直接父目录名完全等于这个值（用于排除 wifi7 这类同名变体子目录）
+  kind              : 'literal' 用 str.replace，'regex' 用 re.subn
+  replacements      : [(old_or_pattern, new_or_repl), ...]，按顺序依次作用在同一份 content 上
+"""
+
+PATCH_HEADERS = {
+    # 每个 key 对应 PATCH_SPECS 里的某个 'name'。main() 写出补丁文件时，
+    # 会把这里的信息拼成标准的 git-am 邮件头，加在 diff 内容之前。
+    #
+    # ⚠️ 未在这里登记的 name，不会有头信息——目前 105/106/400 就属于这种情况，
+    # 因为这三个是从 hurrian/openwrt-w1700k 转抄来的，我们还没有像 0363 那样
+    # 找到并核实过真实的作者/日期/commit message 出处。提交前必须先补上
+    # 真实来源，而不是编一个。
+ 
+    '0363-net-ethernet-qualcomm-honor-safe-NAPI-budgets': {
+        'author': 'Yang Zhengguo <yangzhgg@gmail.com>',
+        'date': 'Sun, 16 Aug 2026 00:41:53 +0800',
+        'subject': 'net: ethernet: qualcomm: honor safe NAPI budgets',
+        'body': (
+            "The EDMA module parameters are validated and reported, but the NAPI instances\n"
+            "are registered with the fixed values from edma_hw_info instead.  On IPQ9574\n"
+            "the TX value is 512, which makes the networking core emit a warning because\n"
+            "it exceeds NAPI_POLL_WEIGHT.\n"
+            "\n"
+            "Use the validated module parameters when registering RX and TX NAPI, limit\n"
+            "them to the networking core's standard budget, and make the IPQ9574 fallback\n"
+            "safe as well."
+        ),
+        'signed_off_by': [
+            'Yang Zhengguo <yangzhgg@gmail.com>',
+            'Jackie Han <jackie.han@gmail.com>',
+        ],
+    },
+
+    '0364-regulator-qcom_smd-fix-MP5496-supply-names': {
+        'author': 'Gabor Juhos <j4g8y7@gmail.com>',
+        'date': 'Tue, 16 Dec 2025 19:38:00 +0100',
+        'subject': 'regulator: qcom_smd: change MP5496 supply names',
+        'body': (
+            'The MP5496 regulator data uses the regulator output name as its input\n'
+            'supply name.  This can make the regulator core resolve an output to\n'
+            'itself and reject it, for example:\n'
+            '\n'
+            '  Supply for s1 (s1) resolved to itself\n'
+            '\n'
+            'Use the MP5496 input pin names from the datasheet.  Buck 1 is supplied\n'
+            'by VIN1, while Buck 2 and LDO2 share VIN2.  LDO5 is supplied by VIN5.\n'
+            '\n'
+            'Link: https://lore.kernel.org/r/20251216-qcom_smd-mp5496-supply-fix-v1-1-f9b5e70536de@gmail.com'
+        ),
+        'signed_off_by': ['Gabor Juhos <j4g8y7@gmail.com>'],
+    },
+}
+    
 PATCH_SPECS = [
     {
         'name': '0363-net-ethernet-qualcomm-honor-safe-NAPI-budgets',
