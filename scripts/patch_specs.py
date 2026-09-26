@@ -125,24 +125,6 @@ PATCH_SPECS = [
              '{ "l5", QCOM_SMD_RPM_LDOA, 5, &mp5496_ldoa2, "vin5" },'),
         ],
     },
-    {
-        'name': '0404-arm64-dts-qcom-ipq9574-add-sdhci-reset',
-        'filename': 'ipq9574.dtsi',
-        'path_must_contain': ('arch', 'arm64', 'boot', 'dts', 'qcom'),
-        'kind': 'literal',
-        'replacements': [
-            (
-                '\t\t\t <&gcc GCC_SDCC1_ICE_CORE_CLK>;\n'
-                '\t\t\tclock-names = "iface", "core", "xo", "ice";\n'
-                '\t\t\tnon-removable;',
-
-                '\t\t\t <&gcc GCC_SDCC1_ICE_CORE_CLK>;\n'
-                '\t\t\tclock-names = "iface", "core", "xo", "ice";\n'
-                '\t\t\tresets = <&gcc GCC_SDCC_BCR>;\n'
-                '\t\t\tnon-removable;'
-            ),
-        ],
-    },
     # ---- mac80211 backports tree ----
     {
         'tree': 'mac80211',
