@@ -234,7 +234,7 @@ def main():
             os.makedirs(patch_dir, exist_ok=True)
             out_path = os.path.join(patch_dir, f'{name}.patch')
             with open(out_path, 'w', encoding='utf-8') as f:
-                f.write(combined_diff)
+                f.write(header + combined_diff)
             print(f"✅ Generated {out_path}")
 
     if total_patched == 0:
