@@ -69,7 +69,7 @@ PATCH_SPECS = [
         'kind': 'regex',
         'replacements': [
             (r'MODULE_PARM_DESC\(\s*edma_rx_napi_budget\s*,\s*".*?"\s*\)',
-             'MODULE_PARM_DESC(edma_rx_napi_budget, "Rx NAPI budget (default:64, min:16, max:64)")'),
+             'MODULE_PARM_DESC(edma_rx_napi_budget, "Rx NAPI budget (default:32, min:16, max:64)")'),
             (r'MODULE_PARM_DESC\(\s*edma_tx_napi_budget\s*,\s*".*?"\s*\)',
              'MODULE_PARM_DESC(edma_tx_napi_budget, "Tx NAPI budget (default:64, min:16, max:64)")'),
             (r'\.napi_budget_tx\s*=\s*\d+\s*,', '.napi_budget_tx = 64,'),
@@ -88,7 +88,7 @@ PATCH_SPECS = [
         'path_must_contain': ('ethernet', 'qualcomm', 'ppe'),
         'kind': 'regex',
         'replacements': [
-            (r'#define\s+EDMA_RX_NAPI_WORK_DEF\s+\d+', '#define EDMA_RX_NAPI_WORK_DEF\t\t64'),
+            (r'#define\s+EDMA_RX_NAPI_WORK_DEF\s+\d+', '#define EDMA_RX_NAPI_WORK_DEF\t\t32'),
             (r'#define\s+EDMA_RX_NAPI_WORK_MAX\s+\d+', '#define EDMA_RX_NAPI_WORK_MAX\t\t64'),
         ],
     },
