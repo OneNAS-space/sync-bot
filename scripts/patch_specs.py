@@ -59,6 +59,18 @@ PATCH_HEADERS = {
         ),
         'signed_off_by': ['Gabor Juhos <j4g8y7@gmail.com>'],
     },
+
+    '0365-net-ethernet-qualcomm-ppe-defer-phylink-setup': {
+        'author': 'Jackie Han <jackie.han@gmail.com>',
+        'date': 'Sun, 11 Oct 2026 07:50:00 +0800',
+        'subject': 'net: ethernet: qualcomm: ppe: defer phylink setup to after netdev registration',
+        'body': (
+            'Defer phylink setup and PHY attachment to after netdev registration\n'
+            'in edma_port_setup(). This prevents the (uninitialized) netdev status\n'
+            'warning logs from printing during the driver probe stage.'
+        ),
+        'signed_off_by': ['Jackie Han <jackie.han@gmail.com>'],
+    },
 }
     
 PATCH_SPECS = [
@@ -123,6 +135,30 @@ PATCH_SPECS = [
              '{ "l2", QCOM_SMD_RPM_LDOA, 2, &mp5496_ldoa2, "vin2" },'),
             ('{ "l5", QCOM_SMD_RPM_LDOA, 5, &mp5496_ldoa2, "l5" },',
              '{ "l5", QCOM_SMD_RPM_LDOA, 5, &mp5496_ldoa2, "vin5" },'),
+        ],
+    },
+    {
+        'name': '0365-net-ethernet-qualcomm-ppe-defer-phylink-setup',
+        'filename': 'edma_port.c',
+        'path_must_contain': ('ethernet', 'qualcomm', 'ppe'),
+        'kind': 'regex',
+        'replacements': [
+            # 1. Dynamically match and swap the order of register_netdev and ppe_port_phylink_setup
+            (
+                r'(?s)(?P<phylink>\tret\s*=\s*ppe_port_phylink_setup\(port,\s*netdev\);\s*if\s*\(ret\)\s*\{.*?\n\t\})\s*'
+                r'(?P<netdev>\tret\s*=\s*register_netdev\(netdev\);\s*if\s*\(ret\)\s*\{.*?\n\t\})',
+                r'\g<netdev>\n\n\g<phylink>'
+            ),
+            # 2. Match and adjust the error handling label and logout logic
+            (
+                r'register_netdev_fail:\s*\n'
+                r'(\t*)ppe_port_phylink_destroy\(port\);\s*\n'
+                r'port_phylink_setup_fail:',
+                r'port_phylink_setup_fail:\n'
+                r'\1unregister_netdev(netdev);\n'
+                r'\1ppe_port_phylink_destroy(port);\n'
+                r'register_netdev_fail:'
+            ),
         ],
     },
     # ---- mac80211 backports tree ----
