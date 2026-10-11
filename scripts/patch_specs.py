@@ -194,6 +194,45 @@ PATCH_SPECS = [
             ),
         ],
     },
+    {
+        'name': '0367-net-ethernet-qualcomm-ppe-guard-ethtool-against-missing-phylink',
+        'filename': 'edma_ethtool.c',
+        'path_must_contain': ('ethernet', 'qualcomm', 'ppe'),
+        'kind': 'regex',
+        'replacements': [
+            # ksettings_get: phylink may not exist yet right after register_netdev()
+            (
+                r'(?P<i>[ \t]*)return\s+phylink_ethtool_ksettings_get\(port->phylink,\s*cmd\);',
+                r'\g<i>if (!port->phylink)\n'
+                r'\g<i>\treturn -EOPNOTSUPP;\n\n'
+                r'\g<i>return phylink_ethtool_ksettings_get(port->phylink, cmd);',
+                1,
+            ),
+            # ksettings_set
+            (
+                r'(?P<i>[ \t]*)return\s+phylink_ethtool_ksettings_set\(port->phylink,\s*cmd\);',
+                r'\g<i>if (!port->phylink)\n'
+                r'\g<i>\treturn -EOPNOTSUPP;\n\n'
+                r'\g<i>return phylink_ethtool_ksettings_set(port->phylink, cmd);',
+                1,
+            ),
+            # get_pauseparam is void: skip the call, the core has already zeroed @pause
+            (
+                r'(?P<i>[ \t]*)phylink_ethtool_get_pauseparam\(port->phylink,\s*pause\);',
+                r'\g<i>if (port->phylink)\n'
+                r'\g<i>\tphylink_ethtool_get_pauseparam(port->phylink, pause);',
+                1,
+            ),
+            # set_pauseparam
+            (
+                r'(?P<i>[ \t]*)return\s+phylink_ethtool_set_pauseparam\(port->phylink,\s*pause\);',
+                r'\g<i>if (!port->phylink)\n'
+                r'\g<i>\treturn -EOPNOTSUPP;\n\n'
+                r'\g<i>return phylink_ethtool_set_pauseparam(port->phylink, pause);',
+                1,
+            ),
+        ],
+    },
     # ---- mac80211 backports tree ----
     {
         'tree': 'mac80211',
