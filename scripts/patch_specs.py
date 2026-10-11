@@ -143,13 +143,26 @@ PATCH_SPECS = [
         'path_must_contain': ('ethernet', 'qualcomm', 'ppe'),
         'kind': 'regex',
         'replacements': [
-            # 1. Dynamically match and swap the order of register_netdev and ppe_port_phylink_setup
+            # 1. Insert the register_netdev logic directly above the phylink settings
             (
-                r'(?s)(?P<phylink>\tret\s*=\s*ppe_port_phylink_setup\(port,\s*netdev\);\s*if\s*\(ret\)\s*\{.*?\n\t\})\s*'
-                r'(?P<netdev>\tret\s*=\s*register_netdev\(netdev\);\s*if\s*\(ret\)\s*\{.*?\n\t\})',
-                r'\g<netdev>\n\n\g<phylink>'
+                r'(\t)(edma_port_configure\(netdev\);\n)',
+                r'\1\2\n'
+                r'\1ret = register_netdev(netdev);\n'
+                r'\1if (ret) {\n'
+                r'\1\tnetdev_dbg(netdev, "Error registering netdevice %s\\n",\n'
+                r'\1\t\t   netdev->name);\n'
+                r'\1\tgoto register_netdev_fail;\n'
+                r'\1}\n'
             ),
-            # 2. Match and adjust the error handling label and logout logic
+            # 2. Delete the old register_netdev code block below the original
+            (
+                r'\tret\s*=\s*register_netdev\(netdev\);\s*\n'
+                r'\tif\s*\(ret\)\s*\{\s*\n'
+                r'.*?\n'
+                r'\t\}\s*\n',
+                r''
+            ),
+            # 3. Adjust the order of error handling labels and the logout logic
             (
                 r'register_netdev_fail:\s*\n'
                 r'(\t*)ppe_port_phylink_destroy\(port\);\s*\n'
