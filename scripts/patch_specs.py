@@ -172,6 +172,28 @@ PATCH_SPECS = [
             ),
         ],
     },
+    {
+        'name': '0366-net-ethernet-qualcomm-ppe-clear-error-pointers-on-phylink-setup-failure',
+        'filename': 'ppe_port.c',
+        'path_must_contain': ('ethernet', 'qualcomm', 'ppe'),
+        'kind': 'regex',
+        'replacements': [
+            (
+                r'(?P<i>[ \t]*)return\s+PTR_ERR\(ppe_port->pcs\);',
+                r'\g<i>ret = PTR_ERR(ppe_port->pcs);\n'
+                r'\g<i>ppe_port->pcs = NULL;\n'
+                r'\g<i>return ret;',
+                1,
+            ),
+            (
+                r'(?P<i>[ \t]*)ret\s*=\s*PTR_ERR\(ppe_port->phylink\);\s*\n\s*goto err_free_pcs;',
+                r'\g<i>ret = PTR_ERR(ppe_port->phylink);\n'
+                r'\g<i>ppe_port->phylink = NULL;\n'
+                r'\g<i>goto err_free_pcs;',
+                1,
+            ),
+        ],
+    },
     # ---- mac80211 backports tree ----
     {
         'tree': 'mac80211',
