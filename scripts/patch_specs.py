@@ -144,7 +144,7 @@ PATCH_SPECS = [
         'kind': 'regex',
         'replacements': [
             (
-                # Atomic-level matching of the entire block from edma_port_configure to the error label
+                # edma_port_setup(): configure -> phylink setup -> register_netdev -> done -> error labels
                 r'(?s)(?P<indent>[ \t]*)edma_port_configure\(netdev\);\s*\n\s*'
                 r'ret\s*=\s*ppe_port_phylink_setup\(port,\s*netdev\);\s*\n'
                 r'(?P<phylink_if>[ \t]*if\s*\(ret\)\s*\{.+?\})\s*\n\s*'
@@ -155,27 +155,20 @@ PATCH_SPECS = [
                 r'register_netdev_fail:\s*\n\s*'
                 r'ppe_port_phylink_destroy\(port\);\s*\n\s*'
                 r'port_phylink_setup_fail:',
-                
-                # The whole is replaced with the adjusted new order and logic.
+
+                # register_netdev() first, then phylink setup. ppe_port_phylink_setup()
+                # cleans up after itself on failure, so the error path must not destroy it again.
                 r'\g<indent>edma_port_configure(netdev);\n\n'
                 r'\g<indent>ret = register_netdev(netdev);\n'
-                r'\g<indent>if (ret) {\n'
-                r'\g<indent>\tnetdev_dbg(netdev, "Error registering netdevice %s\\n",\n'
-                r'\g<indent>\t\t   netdev->name);\n'
-                r'\g<indent>\tgoto register_netdev_fail;\n'
-                r'\g<indent>}\n\n'
+                r'\g<netdev_if>\n\n'
                 r'\g<indent>ret = ppe_port_phylink_setup(port, netdev);\n'
-                r'\g<indent>if (ret) {\n'
-                r'\g<indent>\tnetdev_dbg(netdev, "EDMA port phylink setup for netdevice %s\\n",\n'
-                r'\g<indent>\t\t   netdev->name);\n'
-                r'\g<indent>\tgoto port_phylink_setup_fail;\n'
-                r'\g<indent>}\n\n'
+                r'\g<phylink_if>\n\n'
                 r'\g<indent>netdev_dbg(netdev, "Setup EDMA port%d done\\n", port_id);\n'
                 r'\g<indent>return ret;\n\n'
-                r'\g<indent>port_phylink_setup_fail:\n'
+                r'port_phylink_setup_fail:\n'
                 r'\g<indent>unregister_netdev(netdev);\n'
-                r'\g<indent>ppe_port_phylink_destroy(port);\n'
-                r'\g<indent>register_netdev_fail:'
+                r'register_netdev_fail:',
+                1,
             ),
         ],
     },
