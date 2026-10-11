@@ -143,34 +143,39 @@ PATCH_SPECS = [
         'path_must_contain': ('ethernet', 'qualcomm', 'ppe'),
         'kind': 'regex',
         'replacements': [
-            # 1. Insert the register_netdev logic directly above the phylink settings
             (
-                r'(\t)(edma_port_configure\(netdev\);\n)',
-                r'\1\2\n'
-                r'\1ret = register_netdev(netdev);\n'
-                r'\1if (ret) {\n'
-                r'\1\tnetdev_dbg(netdev, "Error registering netdevice %s\\n",\n'
-                r'\1\t\t   netdev->name);\n'
-                r'\1\tgoto register_netdev_fail;\n'
-                r'\1}\n'
-            ),
-            # 2. Delete the old register_netdev code block below the original
-            (
-                r'\tret\s*=\s*register_netdev\(netdev\);\s*\n'
-                r'\tif\s*\(ret\)\s*\{\s*\n'
-                r'.*?\n'
-                r'\t\}\s*\n',
-                r''
-            ),
-            # 3. Adjust the order of error handling labels and the logout logic
-            (
-                r'register_netdev_fail:\s*\n'
-                r'(\t*)ppe_port_phylink_destroy\(port\);\s*\n'
+                # Atomic-level matching of the entire block from edma_port_configure to the error label
+                r'(?s)(?P<indent>[ \t]*)edma_port_configure\(netdev\);\s*\n\s*'
+                r'ret\s*=\s*ppe_port_phylink_setup\(port,\s*netdev\);\s*\n'
+                r'(?P<phylink_if>[ \t]*if\s*\(ret\)\s*\{.+?\})\s*\n\s*'
+                r'ret\s*=\s*register_netdev\(netdev\);\s*\n'
+                r'(?P<netdev_if>[ \t]*if\s*\(ret\)\s*\{.+?\})\s*\n\s*'
+                r'netdev_dbg\(netdev,\s*"Setup EDMA port%d done\\n",\s*port_id\);\s*\n\s*'
+                r'return\s+ret;\s*\n\s*'
+                r'register_netdev_fail:\s*\n\s*'
+                r'ppe_port_phylink_destroy\(port\);\s*\n\s*'
                 r'port_phylink_setup_fail:',
-                r'port_phylink_setup_fail:\n'
-                r'\1unregister_netdev(netdev);\n'
-                r'\1ppe_port_phylink_destroy(port);\n'
-                r'register_netdev_fail:'
+                
+                # The whole is replaced with the adjusted new order and logic.
+                r'\g<indent>edma_port_configure(netdev);\n\n'
+                r'\g<indent>ret = register_netdev(netdev);\n'
+                r'\g<indent>if (ret) {\n'
+                r'\g<indent>\tnetdev_dbg(netdev, "Error registering netdevice %s\\n",\n'
+                r'\g<indent>\t\t   netdev->name);\n'
+                r'\g<indent>\tgoto register_netdev_fail;\n'
+                r'\g<indent>}\n\n'
+                r'\g<indent>ret = ppe_port_phylink_setup(port, netdev);\n'
+                r'\g<indent>if (ret) {\n'
+                r'\g<indent>\tnetdev_dbg(netdev, "EDMA port phylink setup for netdevice %s\\n",\n'
+                r'\g<indent>\t\t   netdev->name);\n'
+                r'\g<indent>\tgoto port_phylink_setup_fail;\n'
+                r'\g<indent>}\n\n'
+                r'\g<indent>netdev_dbg(netdev, "Setup EDMA port%d done\\n", port_id);\n'
+                r'\g<indent>return ret;\n\n'
+                r'\g<indent>port_phylink_setup_fail:\n'
+                r'\g<indent>unregister_netdev(netdev);\n'
+                r'\g<indent>ppe_port_phylink_destroy(port);\n'
+                r'\g<indent>register_netdev_fail:'
             ),
         ],
     },
