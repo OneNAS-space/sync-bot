@@ -12,15 +12,7 @@
   replacements      : [(old_or_pattern, new_or_repl), ...]，按顺序依次作用在同一份 content 上
 """
 
-PATCH_HEADERS = {
-    # 每个 key 对应 PATCH_SPECS 里的某个 'name'。main() 写出补丁文件时，
-    # 会把这里的信息拼成标准的 git-am 邮件头，加在 diff 内容之前。
-    #
-    # ⚠️ 未在这里登记的 name，不会有头信息——目前 105/106/400 就属于这种情况，
-    # 因为这三个是从 hurrian/openwrt-w1700k 转抄来的，我们还没有像 0363 那样
-    # 找到并核实过真实的作者/日期/commit message 出处。提交前必须先补上
-    # 真实来源，而不是编一个。
- 
+PATCH_HEADERS = { 
     '0363-net-ethernet-qualcomm-honor-safe-NAPI-budgets': {
         'author': 'Yang Zhengguo <yangzhgg@gmail.com>',
         'date': 'Sun, 16 Aug 2026 00:41:53 +0800',
@@ -65,9 +57,54 @@ PATCH_HEADERS = {
         'date': 'Sun, 11 Oct 2026 07:50:00 +0800',
         'subject': 'net: ethernet: qualcomm: ppe: defer phylink setup to after netdev registration',
         'body': (
-            'Defer phylink setup and PHY attachment to after netdev registration\n'
-            'in edma_port_setup(). This prevents the (uninitialized) netdev status\n'
-            'warning logs from printing during the driver probe stage.'
+            'edma_port_setup() attaches the PHY, through ppe_port_phylink_setup(),\n'
+            'before the netdev is registered.  The PHY attach message is therefore\n'
+            'printed for a netdev that is still unregistered:\n'
+            '\n'
+            '  qcom_ppe 3a000000.ethernet lan2 (uninitialized): PHY [...] driver [...]\n'
+            '\n'
+            'Register the netdev first and set up phylink afterwards.  If\n'
+            'ppe_port_phylink_setup() fails, it has already released its own phylink\n'
+            'and PCS, so only the netdev has to be unregistered before the common\n'
+            'cleanup.'
+        ),
+        'signed_off_by': ['Jackie Han <jackie.han@gmail.com>'],
+    },
+ 
+    '0366-net-ethernet-qualcomm-ppe-clear-error-pointers-on-phylink-setup-failure': {
+        'author': 'Jackie Han <jackie.han@gmail.com>',
+        'date': 'Sun, 11 Oct 2026 08:10:00 +0800',
+        'subject': 'net: ethernet: qualcomm: ppe: clear error pointers on phylink setup failure',
+        'body': (
+            'ppe_port_phylink_setup() assigns the result of ipq_pcs_get() and\n'
+            'phylink_create() directly to ppe_port->pcs and ppe_port->phylink.  If\n'
+            'either call fails, the ERR_PTR value is left in the structure.\n'
+            '\n'
+            'ppe_port_phylink_destroy() only checks these members for NULL, so any\n'
+            'later call on the same port would hand the error pointer to\n'
+            'ipq_pcs_put(), phylink_disconnect_phy() and phylink_destroy().\n'
+            '\n'
+            'Set both members to NULL when the calls fail.  The success path is\n'
+            'unchanged.'
+        ),
+        'signed_off_by': ['Jackie Han <jackie.han@gmail.com>'],
+    },
+
+    '0367-net-ethernet-qualcomm-ppe-guard-ethtool-against-missing-phylink': {
+        'author': 'Jackie Han <jackie.han@gmail.com>',
+        'date': 'Mon, 12 Oct 2026 10:30:00 +0800',
+        'subject': 'net: ethernet: qualcomm: ppe: guard ethtool callbacks against missing phylink',
+        'body': (
+            'Since phylink is now set up after register_netdev() in\n'
+            'edma_port_setup(), ppe_port->phylink is still NULL for a short time\n'
+            'after the netdev becomes visible.  The ethtool callbacks for link\n'
+            'settings and pause parameters pass it to phylink without checking, and\n'
+            'would dereference a NULL pointer if called in that window.\n'
+            '\n'
+            'Return -EOPNOTSUPP from the callbacks that return a value, and skip the\n'
+            'call in edma_get_pauseparam(), when phylink is not available.  This\n'
+            'matches edma_port_open(), edma_port_close() and edma_port_ioctl(),\n'
+            'which already check ppe_port->phylink.'
         ),
         'signed_off_by': ['Jackie Han <jackie.han@gmail.com>'],
     },
