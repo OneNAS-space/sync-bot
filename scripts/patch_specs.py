@@ -482,68 +482,6 @@ PATCH_SPECS = [
             ),
         ],
     },
-    # 200 - Modify the ce.h part
-    {
-        'tree': 'mac80211',
-        'name': '200-Revert-wifi-ath12k-convert-tasklet-to-BH-workqueue-f',
-        'filename': 'ce.h',
-        'path_must_contain': ('mac80211', 'backports', 'drivers/net/wireless/ath/ath12k'),
-        'parent_dir_exact': 'ath12k',
-        'kind': 'regex',
-        'replacements': [
-            # Restore the intr_tq field in the structure ath12k_ce_pipe
-            (
-                r'([ \t]*)struct work_struct intr_wq;',
-                r'\1struct tasklet_struct intr_tq;'
-            ),
-        ],
-    },
-    # 200 - Modify the pci.c part
-    {
-        'tree': 'mac80211',
-        'name': '200-Revert-wifi-ath12k-convert-tasklet-to-BH-workqueue-f',
-        'filename': 'pci.c',
-        'path_must_contain': ('mac80211', 'backports', 'drivers/net/wireless/ath/ath12k'),
-        'parent_dir_exact': 'ath12k',
-        'kind': 'regex',
-        'replacements': [
-            # 1. Restore tasklet processing function declaration and from_tasklet conversion
-            (
-                r'static void ath12k_pci_ce_workqueue\(struct work_struct \*work\)\n'
-                r'\{\n'
-                r'[ \t]*struct ath12k_ce_pipe \*ce_pipe = from_work\(ce_pipe, work, intr_wq\);',
-
-                r'static void ath12k_pci_ce_tasklet(struct tasklet_struct *t)\n'
-                r'{\n'
-                r'\tstruct ath12k_ce_pipe *ce_pipe = from_tasklet(ce_pipe, t, intr_tq);'
-            ),
-            # 2. Dispatch tasklet in the interrupt processing function to replace the queue into the queue
-            (
-                r'[ \t]*queue_work\(system_bh_wq,\s*&ce_pipe->intr_wq\);',
-                r'\ttasklet_schedule(&ce_pipe->intr_tq);'
-            ),
-            # 3. Use tasklet_setup to replace INIT_WORK at interrupt initialization
-            (
-                r'[ \t]*INIT_WORK\(&ce_pipe->intr_wq,\s*ath12k_pci_ce_workqueue\);',
-                r'\t\ttasklet_setup(&ce_pipe->intr_tq, ath12k_pci_ce_tasklet);'
-            ),
-            # 4. Function name reduction:ath12k_pci_cancel_workqueue -> ath12k_pci_kill_tasklets
-            (
-                r'static void ath12k_pci_cancel_workqueue\(struct ath12k_base \*ab\)',
-                r'static void ath12k_pci_kill_tasklets(struct ath12k_base *ab)'
-            ),
-            # 5. Use tasklet_kill to replace cancel_work_sync in the cleanup function
-            (
-                r'[ \t]*cancel_work_sync\(&ce_pipe->intr_wq\);',
-                r'\t\ttasklet_kill(&ce_pipe->intr_tq);'
-            ),
-            # 6. Restore the call point in the synchronous disabled interrupt function
-            (
-                r'([ \t]*)ath12k_pci_cancel_workqueue\(ab\);',
-                r'\1ath12k_pci_kill_tasklets(ab);'
-            ),
-        ],
-    },
     {
         'tree': 'mac80211',
         'name': '400-wifi-ath12k-set-per-radio-MAC-address-from-DT',
