@@ -271,20 +271,20 @@ PATCH_SPECS = [
         ],
     },
     # ---- mac80211 backports tree ----
-    {
-        'tree': 'mac80211',
-        'name': '105-wifi-ath12k-support-CV-upload-direct-buffer-module',
-        'filename': 'wmi.h',
-        'path_must_contain': ('mac80211', 'backports', 'drivers/net/wireless/ath/ath12k'),
-        'parent_dir_exact': 'ath12k',
-        'kind': 'literal',
-        'replacements': [
-            (
-                '\tWMI_DIRECT_BUF_CFR = 1,',
-                '\tWMI_DIRECT_BUF_CFR = 1,\n\tWMI_DIRECT_BUF_CV_UPLOAD = 2,'
-            ),
-        ],
-    },
+    #{
+    #    'tree': 'mac80211',
+    #    'name': '105-wifi-ath12k-support-CV-upload-direct-buffer-module',
+    #    'filename': 'wmi.h',
+    #    'path_must_contain': ('mac80211', 'backports', 'drivers/net/wireless/ath/ath12k'),
+    #    'parent_dir_exact': 'ath12k',
+    #    'kind': 'literal',
+    #    'replacements': [
+    #        (
+    #            '\tWMI_DIRECT_BUF_CFR = 1,',
+    #            '\tWMI_DIRECT_BUF_CFR = 1,\n\tWMI_DIRECT_BUF_CV_UPLOAD = 2,'
+    #        ),
+    #    ],
+    #},
     {
         'tree': 'mac80211',
         'name': '106-wifi-ath12k-handle-empty-regulatory-events',
@@ -367,7 +367,7 @@ PATCH_SPECS = [
     },
     {
         'tree': 'mac80211',
-        'name': '108-wifi-ath12k-use-WSI-index-for-hardware-group-order',
+        'name': '105-wifi-ath12k-use-WSI-index-for-hardware-group-order',
         'filename': 'core.c',
         'path_must_contain': ('mac80211', 'backports', 'drivers/net/wireless/ath/ath12k'),
         'parent_dir_exact': 'ath12k',
@@ -467,21 +467,21 @@ PATCH_SPECS = [
             ),
         ],
     },
-    {
-        'tree': 'mac80211',
-        'name': '111-wifi-ath12k-support-Wi-Fi-radar-direct-buffer-module',
-        'filename': 'wmi.h',
-        'path_must_contain': ('mac80211', 'backports', 'drivers/net/wireless/ath/ath12k'),
-        'parent_dir_exact': 'ath12k',
-        'kind': 'regex',
-        'replacements': [
-            # Add WMI_CONFIG_MODULE_WIFI_RADAR enumeration value to enum wmi_direct_buffer_module
-            (
-                r'([ \t]*WMI_DIRECT_BUF_CV_UPLOAD\s*=\s*2,?\n)',
-                r'\1\tWMI_CONFIG_MODULE_WIFI_RADAR = 3,\n'
-            ),
-        ],
-    },
+    #{
+    #    'tree': 'mac80211',
+    #    'name': '111-wifi-ath12k-support-Wi-Fi-radar-direct-buffer-module',
+    #    'filename': 'wmi.h',
+    #    'path_must_contain': ('mac80211', 'backports', 'drivers/net/wireless/ath/ath12k'),
+    #    'parent_dir_exact': 'ath12k',
+    #    'kind': 'regex',
+    #    'replacements': [
+    #        # Add WMI_CONFIG_MODULE_WIFI_RADAR enumeration value to enum wmi_direct_buffer_module
+    #        (
+    #            r'([ \t]*WMI_DIRECT_BUF_CV_UPLOAD\s*=\s*2,?\n)',
+    #            r'\1\tWMI_CONFIG_MODULE_WIFI_RADAR = 3,\n'
+    #        ),
+    #    ],
+    #},
     {
         'tree': 'mac80211',
         'name': '400-wifi-ath12k-set-per-radio-MAC-address-from-DT',
