@@ -287,7 +287,7 @@ PATCH_SPECS = [
     #},
     {
         'tree': 'mac80211',
-        'name': '106-wifi-ath12k-handle-empty-regulatory-events',
+        'name': '906-wifi-ath12k-handle-empty-regulatory-events',
         'filename': 'wmi.c',
         'path_must_contain': ('mac80211', 'backports', 'drivers/net/wireless/ath/ath12k'),
         'parent_dir_exact': 'ath12k',
@@ -367,7 +367,7 @@ PATCH_SPECS = [
     },
     {
         'tree': 'mac80211',
-        'name': '105-wifi-ath12k-use-WSI-index-for-hardware-group-order',
+        'name': '908-wifi-ath12k-use-WSI-index-for-hardware-group-order',
         'filename': 'core.c',
         'path_must_contain': ('mac80211', 'backports', 'drivers/net/wireless/ath/ath12k'),
         'parent_dir_exact': 'ath12k',
@@ -407,7 +407,7 @@ PATCH_SPECS = [
     },
     {
         'tree': 'mac80211',
-        'name': '109-wifi-ath12k-log-WMI-control-service-topology',
+        'name': '909-wifi-ath12k-log-WMI-control-service-topology',
         'filename': 'wmi.c',
         'path_must_contain': ('mac80211', 'backports', 'drivers/net/wireless/ath/ath12k'),
         'parent_dir_exact': 'ath12k',
@@ -446,7 +446,7 @@ PATCH_SPECS = [
     },
     {
         'tree': 'mac80211',
-        'name': '110-wifi-ath12k-limit-WMI-endpoints-to-QMI-PHY-count',
+        'name': '910-wifi-ath12k-limit-WMI-endpoints-to-QMI-PHY-count',
         'filename': 'htc.c',
         'path_must_contain': ('mac80211', 'backports', 'drivers/net/wireless/ath/ath12k'),
         'parent_dir_exact': 'ath12k',
