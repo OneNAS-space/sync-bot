@@ -16,7 +16,10 @@ TREES = {
         'dir_env': 'MAC80211_DIR',
         'patch_dir_rel': 'package/kernel/mac80211/patches/ath12k',
     },
-}
+    'hostapd': {
+        'dir_env': 'HOSTAPD_DIR',
+        'patch_dir_rel': 'package/network/services/hostapd/patches',
+    },}
 
 def resolve_tree_dir(tree_key):
     env_name = TREES[tree_key]['dir_env']
@@ -28,6 +31,10 @@ def resolve_tree_dir(tree_key):
                 d = matches[0]
         elif tree_key == 'mac80211':
             matches = glob.glob('build_dir/target-*/mac80211-*') or glob.glob('build_dir/target-*/backports-*')
+            if matches:
+                d = matches[0]
+        elif tree_key == 'hostapd':
+            matches = glob.glob('build_dir/target-*/hostapd-*/hostapd-*')
             if matches:
                 d = matches[0]
 
