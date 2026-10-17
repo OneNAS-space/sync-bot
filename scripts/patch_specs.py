@@ -109,7 +109,7 @@ PATCH_HEADERS = {
         'signed_off_by': ['Jackie Han <jackie.han@gmail.com>'],
     },
 
-    '980-AP-keep-the-configured-width-on-5-6-GHz-if-the-20-40': {
+    '980-AP-keep_configured_width_on_5G_6G-if_20M_40M_scan_fails': {
         'author': 'Crescentm <guyues@outlook.com>',
         'date': 'Thu, 1 Oct 2026 15:13:53 +0800',
         'subject': 'AP: keep the configured width on 5/6 GHz if the 20/40 MHz scan fails',
