@@ -56,6 +56,7 @@ jobs:
           patch -p1 < ../config-repo/my_patches/0002-Enable-CMA-and-DMA_CMA-in-Qualcomm-config.patch
           patch -p1 < ../config-repo/my_patches/0003-change-timezone-config_generate.patch
           patch -p1 < ../config-repo/my_patches/0004-Add-LED-configuration-for-SBE1V1K-board.patch
+          patch -p1 < ../config-repo/my_patches/0005-Add-uci_defaults-disable_packet_steering-Skip_scan_on_5G_6G.patch
 
       - name: Select Target (qualcommbe / ipq95xx)
         run: |
@@ -78,6 +79,7 @@ jobs:
           export ACTUAL_KERNEL_DIR=$(ls -d build_dir/target-*/linux-*/linux-6.* | grep -v 'orig' | head -n 1)
           export KERNEL_DIR="$ROOT_DIR/$ACTUAL_KERNEL_DIR"
           export MAC80211_DIR="$ROOT_DIR/$(ls -d build_dir/target-*/linux-*/mac80211-regular/backports-* | head -n 1)"
+          export HOSTAPD_DIR="$ROOT_DIR/$(ls -d build_dir/target-*/hostapd-*/hostapd-* | head -n 1)"
           python3 ../config-repo/scripts/apply_dynamic_patches.py
 
       - name: Fetch and Set Official Vermagic
