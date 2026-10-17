@@ -757,7 +757,7 @@ PATCH_SPECS = [
     # ---- hostapd tree ----
     {
         'tree': 'hostapd',
-        'name': '980-AP-keep-the-configured-width-on-5-6-GHz-if-the-20-40',
+        'name': '980-AP-keep_configured_width_on_5G_6G-if_20M_40M_scan_fails',
         'filename': 'hw_features.c',
         'path_must_contain': ('src', 'ap'),
         'kind': 'regex',
