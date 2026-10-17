@@ -763,14 +763,20 @@ PATCH_SPECS = [
         'kind': 'regex',
         'replacements': [
             (
-                r'(?P<i>[ \t]*)wpa_printf\(MSG_DEBUG,\s*"Failed to request a scan in device, bringing up in HT20 mode"\);',
+                r'(?P<i>[ \t]*)wpa_printf\(MSG_DEBUG,\s*\n\s*"Failed to request a scan in device, bringing up in HT20 mode"\);',
+                r'\g<i>/*\n'
+                r'\g<i> * On 5/6 GHz the scan can only make us swap the primary and secondary\n'
+                r'\g<i> * channel (check_40mhz_5g() never disallows 40 MHz there), so without\n'
+                r'\g<i> * it keep the configured width, as noscan=1 does.\n'
+                r'\g<i> */\n'
                 r'\g<i>if (iface->current_mode->mode == HOSTAPD_MODE_IEEE80211A) {\n'
                 r'\g<i>\twpa_printf(MSG_INFO,\n'
                 r'\g<i>\t\t   "Failed to request a scan of neighboring BSSes, keeping the configured channel width");\n'
                 r'\g<i>\thostapd_setup_interface_complete(iface, 0);\n'
                 r'\g<i>\treturn;\n'
                 r'\g<i>}\n\n'
-                r'\g<i>wpa_printf(MSG_DEBUG, "Failed to request a scan in device, bringing up in HT20 mode");',
+                r'\g<i>wpa_printf(MSG_DEBUG,\n'
+                r'\g<i>\t   "Failed to request a scan in device, bringing up in HT20 mode");',
                 1,
             ),
         ],
