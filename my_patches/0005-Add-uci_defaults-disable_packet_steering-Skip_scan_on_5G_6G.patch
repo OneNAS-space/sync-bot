@@ -1,20 +1,22 @@
-From 6150c1abf7348060e775a3280fce3f6fe373c62f Mon Sep 17 00:00:00 2001
+From 82349a6fc4a65d417c796a622e4d62c4221615c3 Mon Sep 17 00:00:00 2001
 From: Jackie Han <jackie.han@gmail.com>
-Date: Sat, 17 Oct 2026 15:53:36 +0800
-Subject: [PATCH] Add SBE1V1K defaults script for device configuration
+Date: Sat, 17 Oct 2026 18:36:28 +0800
+Subject: [PATCH] Add SBE1V1K default configuration script
 
-This script sets default configurations for SBE1V1K devices, disabling packet steering and scanning on certain wireless bands to improve performance.
+This script sets default configurations for SBE1V1K, including disabling packet steering and managing scan behavior for wireless devices.
+
+Signed-off-by: Jackie Han <jackie.han@gmail.com>
 ---
- .../etc/uci-defaults/99-sbe1v1k-defaults      | 43 +++++++++++++++++++
- 1 file changed, 43 insertions(+)
+ .../etc/uci-defaults/99-sbe1v1k-defaults      | 44 +++++++++++++++++++
+ 1 file changed, 44 insertions(+)
  create mode 100644 target/linux/qualcommbe/ipq95xx/base-files/etc/uci-defaults/99-sbe1v1k-defaults
 
 diff --git a/target/linux/qualcommbe/ipq95xx/base-files/etc/uci-defaults/99-sbe1v1k-defaults b/target/linux/qualcommbe/ipq95xx/base-files/etc/uci-defaults/99-sbe1v1k-defaults
 new file mode 100644
-index 00000000000..43d97ecbad0
+index 00000000000000..1c35bac34e23a6
 --- /dev/null
 +++ b/target/linux/qualcommbe/ipq95xx/base-files/etc/uci-defaults/99-sbe1v1k-defaults
-@@ -0,0 +1,43 @@
+@@ -0,0 +1,44 @@
 +#!/bin/sh
 +# SBE1V1K defaults, applied once per device (marker kept in /etc/config/system
 +# so a later choice by the user survives sysupgrade). Runs after
@@ -22,7 +24,8 @@ index 00000000000..43d97ecbad0
 +
 +# Packet steering makes ath12k drop clients under heavy load (OpenWrt forum
 +# thread 245244, post 243).
-+if ! uci -q get system.sbe1v1k_init.sbe1v1k_packet_steering >/dev/null; then
++uci -q get system.sbe1v1k_init >/dev/null || uci -q set system.sbe1v1k_init='sbe1v1k_init'
++if [ "$(uci -q get system.sbe1v1k_init.sbe1v1k_packet_steering)" != "0" ]; then
 +	uci -q set network.@globals[0].packet_steering='0'
 +	uci -q set system.sbe1v1k_init.sbe1v1k_packet_steering='0'
 +	uci -q commit network
@@ -38,7 +41,7 @@ index 00000000000..43d97ecbad0
 +# on the next boot.
 +retry=0
 +
-+if ! uci -q get system.sbe1v1k_init.noscan >/dev/null; then
++if [ "$(uci -q get system.sbe1v1k_init.noscan)" != "1" ]; then
 +	devs=$(uci -q show wireless | sed -n "s/^wireless\.\([^.]*\)=wifi-device$/\1/p")
 +	if [ -z "$devs" ]; then
 +		retry=1
