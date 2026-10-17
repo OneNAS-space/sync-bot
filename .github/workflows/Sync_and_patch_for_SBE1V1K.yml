@@ -71,15 +71,32 @@ jobs:
           cd openwrt-src
           make target/linux/{download,prepare}
           make package/kernel/mac80211/{download,prepare}
+          make package/network/services/hostapd/{download,prepare}
 
       - name: Auto-Apply Dynamic Kernel Patches
+        env:
+          STRICT: '1'
         run: |
           cd openwrt-src
+          set -euo pipefail
           export ROOT_DIR=$PWD
-          export ACTUAL_KERNEL_DIR=$(ls -d build_dir/target-*/linux-*/linux-6.* | grep -v 'orig' | head -n 1)
-          export KERNEL_DIR="$ROOT_DIR/$ACTUAL_KERNEL_DIR"
-          export MAC80211_DIR="$ROOT_DIR/$(ls -d build_dir/target-*/linux-*/mac80211-regular/backports-* | head -n 1)"
-          export HOSTAPD_DIR="$ROOT_DIR/$(ls -d build_dir/target-*/hostapd-*/hostapd-* | head -n 1)"
+
+          pick() {
+            local d
+            d=$(ls -d $2 2>/dev/null | grep -v 'orig' | head -n 1 || true)
+            if [ -z "$d" ]; then
+              echo "::error::$1 source dir not found (glob: $2)" >&2
+              ls -d build_dir/target-*/* 2>/dev/null | head -50 >&2
+              exit 1
+            fi
+            echo "$ROOT_DIR/$d"
+          }
+
+          KERNEL_DIR="$(pick kernel 'build_dir/target-*/linux-*/linux-6.*')"
+          MAC80211_DIR="$(pick mac80211 'build_dir/target-*/linux-*/mac80211-regular/backports-*')"
+          HOSTAPD_DIR="$(pick hostapd 'build_dir/target-*/hostapd-*/hostapd-*')"
+          export KERNEL_DIR MAC80211_DIR HOSTAPD_DIR
+
           python3 ../config-repo/scripts/apply_dynamic_patches.py
 
       - name: Fetch and Set Official Vermagic
