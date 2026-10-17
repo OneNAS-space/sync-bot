@@ -4,22 +4,11 @@ import os, sys, re, glob, difflib, tempfile, subprocess
 from patch_specs import PATCH_SPECS, PATCH_HEADERS
 
 TREES = {
-    'kernel': {
-        'dir_env': 'KERNEL_DIR',
-        'patch_dir_rel': 'target/linux/qualcommbe/patches-6.18',
-    },
-    'kernel-generic': {
-        'dir_env': 'KERNEL_DIR',
-        'patch_dir_rel': 'target/linux/generic/hack-6.18',
-    },
-    'mac80211': {
-        'dir_env': 'MAC80211_DIR',
-        'patch_dir_rel': 'package/kernel/mac80211/patches/ath12k',
-    },
-    'hostapd': {
-        'dir_env': 'HOSTAPD_DIR',
-        'patch_dir_rel': 'package/network/services/hostapd/patches',
-    },}
+    'kernel':         {'dir_env': 'KERNEL_DIR',   'patch_dir_rel': 'target/linux/qualcommbe/patches-6.18',  'marker': 'drivers/net'},
+    'kernel-generic': {'dir_env': 'KERNEL_DIR',   'patch_dir_rel': 'target/linux/generic/hack-6.18',        'marker': 'drivers/net'},
+    'mac80211':       {'dir_env': 'MAC80211_DIR', 'patch_dir_rel': 'package/kernel/mac80211/patches/ath12k', 'marker': 'drivers/net/wireless/ath/ath12k'},
+    'hostapd':        {'dir_env': 'HOSTAPD_DIR',  'patch_dir_rel': 'package/network/services/hostapd/patches', 'marker': 'src/ap'},
+}
 
 def resolve_tree_dir(tree_key):
     env_name = TREES[tree_key]['dir_env']
@@ -40,6 +29,10 @@ def resolve_tree_dir(tree_key):
 
     if not d or not os.path.isdir(d):
         print(f"Error: {env_name} Not set or the directory does not exist: {d}")
+        sys.exit(1)
+    marker = TREES[tree_key].get('marker')
+    if marker and not os.path.isdir(os.path.join(d, marker)):
+        print(f"Error: {d} does not look like the {tree_key} source tree (missing {marker})")
         sys.exit(1)
     return os.path.abspath(d)
 
