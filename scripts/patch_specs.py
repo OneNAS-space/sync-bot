@@ -108,6 +108,32 @@ PATCH_HEADERS = {
         ),
         'signed_off_by': ['Jackie Han <jackie.han@gmail.com>'],
     },
+
+    '980-AP-keep-the-configured-width-on-5-6-GHz-if-the-20-40': {
+        'author': 'Crescentm <guyues@outlook.com>',
+        'date': 'Thu, 1 Oct 2026 15:13:53 +0800',
+        'subject': 'AP: keep the configured width on 5/6 GHz if the 20/40 MHz scan fails',
+        'body': (
+            "Before enabling a 40 MHz (or wider) BSS, hostapd scans the affected\n"
+            "channels for overlapping BSSes. If the driver refuses the scan with\n"
+            "-EBUSY, ap_ht40_scan_retry() tries again once a second, and after 15\n"
+            "attempts brings the BSS up at 20 MHz.\n"
+            "\n"
+            "On a single wiphy with several radios (e.g. ath12k with a 2.4, 5 and\n"
+            "6 GHz radio) only one radio can scan at a time, so while another radio\n"
+            "scans (ACS, its own coexistence scan, a station scan), the 5 GHz or 6 GHz\n"
+            "radio can run out of retries and comes up at 20 MHz, although nothing\n"
+            "on the channel asked for that.\n"
+            "\n"
+            "On 5/6 GHz the result of that scan can only swap the primary and\n"
+            "secondary channel: check_40mhz_5g() returns 1 or 2 for any valid channel\n"
+            "pair and never disallows 40 MHz. Skipping it is what noscan=1 already\n"
+            "does. So when the scan cannot be run there, keep the configured channel\n"
+            "width and bring the BSS up as configured. 2.4 GHz still falls back to\n"
+            "20 MHz, since there the scan can forbid 40 MHz."
+        ),
+        'signed_off_by': ['Crescentm <guyues@outlook.com>'],
+    },
 }
     
 PATCH_SPECS = [
@@ -725,6 +751,27 @@ PATCH_SPECS = [
                 r'\2.led_hw_control_get = rtl826x_led_hw_control_get,\n'
                 r'\2.led_hw_control_set = rtl826x_led_hw_control_set,\n',
                 6,
+            ),
+        ],
+    },
+    # ---- hostapd tree ----
+    {
+        'tree': 'hostapd',
+        'name': '980-AP-keep-the-configured-width-on-5-6-GHz-if-the-20-40',
+        'filename': 'hw_features.c',
+        'path_must_contain': ('src', 'ap'),
+        'kind': 'regex',
+        'replacements': [
+            (
+                r'(?P<i>[ \t]*)wpa_printf\(MSG_DEBUG,\s*"Failed to request a scan in device, bringing up in HT20 mode"\);',
+                r'\g<i>if (iface->current_mode->mode == HOSTAPD_MODE_IEEE80211A) {\n'
+                r'\g<i>\twpa_printf(MSG_INFO,\n'
+                r'\g<i>\t\t   "Failed to request a scan of neighboring BSSes, keeping the configured channel width");\n'
+                r'\g<i>\thostapd_setup_interface_complete(iface, 0);\n'
+                r'\g<i>\treturn;\n'
+                r'\g<i>}\n\n'
+                r'\g<i>wpa_printf(MSG_DEBUG, "Failed to request a scan in device, bringing up in HT20 mode");',
+                1,
             ),
         ],
     },
