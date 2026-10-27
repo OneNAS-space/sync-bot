@@ -377,8 +377,7 @@ jobs:
             ':!README.md' \
             ':!README_ZH.md' \
             ':!RELEASE.md' \
-            ':!RELEASE_ZH.md' \
-            ':!Makefile'
+            ':!RELEASE_ZH.md'
 
       - name: Commit and push
         run: |
