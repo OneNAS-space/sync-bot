@@ -1,0 +1,57 @@
+From 504ebf02d658e6853f15fd012479fa5c4e56467c Mon Sep 17 00:00:00 2001
+From: Jackie Han <jackie.han@gmail.com>
+Date: Thu, 29 Oct 2026 21:12:11 +0800
+Subject: [PATCH 9/9] qualcommbe: sbe1v1k: default to a breathing blue status
+ LED
+
+Add a uci-defaults script that creates a "config led" section driving
+blue:status with the pattern trigger ("0 1500 255 1500": 1.5 s ramp up,
+1.5 s ramp down). Nothing is added if a led section for red:status,
+green:status or blue:status already exists, so existing configuration
+is neither overridden nor duplicated. Runs once per device; the marker in
+/etc/config/system keeps later changes through sysupgrade.
+---
+ .../etc/uci-defaults/98-sbe1v1k-led           | 32 +++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+ create mode 100644 target/linux/qualcommbe/ipq95xx/base-files/etc/uci-defaults/98-sbe1v1k-led
+
+diff --git a/target/linux/qualcommbe/ipq95xx/base-files/etc/uci-defaults/98-sbe1v1k-led b/target/linux/qualcommbe/ipq95xx/base-files/etc/uci-defaults/98-sbe1v1k-led
+new file mode 100644
+index 0000000..042f79e
+--- /dev/null
++++ b/target/linux/qualcommbe/ipq95xx/base-files/etc/uci-defaults/98-sbe1v1k-led
+@@ -0,0 +1,32 @@
++#!/bin/sh
++# SBE1V1K top status LED: slow blue breathing via the "pattern" trigger
++# (hook in /usr/libexec/led-trigger/pattern).
++# Only added when no led section already drives one of the status LEDs, so
++# an existing red/green/blue configuration is never overridden or
++# duplicated. Applied once per device: the marker lives in
++# /etc/config/system, so deleting or changing the section later survives
++# sysupgrade.
++
++[ "$(uci -q get system.sbe1v1k_init.led_breathing)" = "1" ] && exit 0
++
++uci -q get system.sbe1v1k_init >/dev/null || uci -q set system.sbe1v1k_init='sbe1v1k_init'
++
++have_led=0
++for s in $(uci -q show system | sed -n 's/^system\.\([^.]*\)=led$/\1/p'); do
++	case "$(uci -q get system.$s.sysfs)" in
++	red:status|green:status|blue:status) have_led=1 ;;
++	esac
++done
++
++if [ "$have_led" = 0 ]; then
++	uci -q set system.sbe1v1k_status_led='led'
++	uci -q set system.sbe1v1k_status_led.name='status breathing'
++	uci -q set system.sbe1v1k_status_led.sysfs='blue:status'
++	uci -q set system.sbe1v1k_status_led.trigger='pattern'
++	uci -q set system.sbe1v1k_status_led.pattern='0 1500 255 1500'
++fi
++
++uci -q set system.sbe1v1k_init.led_breathing='1'
++uci -q commit system
++
++exit 0
+-- 
+2.43.0
