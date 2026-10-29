@@ -10,6 +10,8 @@ blue:status with the pattern trigger ("0 1500 255 1500": 1.5 s ramp up,
 green:status or blue:status already exists, so existing configuration
 is neither overridden nor duplicated. Runs once per device; the marker in
 /etc/config/system keeps later changes through sysupgrade.
+
+Signed-off-by: Jackie Han <jackie.han@gmail.com>
 ---
  .../etc/uci-defaults/98-sbe1v1k-led           | 32 +++++++++++++++++++
  1 file changed, 32 insertions(+)
