@@ -17,6 +17,7 @@ Based on the diff posted by looong-cat in openwrt/openwrt#26099, tested
 there on a H/W 4.1 unit.
 
 Link: https://github.com/openwrt/openwrt/issues/26099
+Signed-off-by: Jackie Han <jackie.han@gmail.com>
 ---
  .../linux/qualcommbe/dts/ipq9570-sbe1v1k.dts  | 32 ++++++++++++++++---
  1 file changed, 27 insertions(+), 5 deletions(-)
