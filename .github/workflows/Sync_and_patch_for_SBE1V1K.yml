@@ -57,6 +57,8 @@ jobs:
           patch -p1 < ../config-repo/my_patches/0003-change-timezone-config_generate.patch
           patch -p1 < ../config-repo/my_patches/0004-Add-LED-configuration-for-SBE1V1K-board.patch
           patch -p1 < ../config-repo/my_patches/0005-Add-uci_defaults-disable_packet_steering-Skip_scan_on_5G_6G.patch
+          patch -p1 < ../config-repo/my_patches/0006-dts-sbe1v1k-pwm-status-led-and-fan-tach.patch
+          patch -p1 < ../config-repo/my_patches/0007-Enable-LEDS_PWM-in-Qualcomm-config.patch
 
       - name: Select Target (qualcommbe / ipq95xx)
         run: |
