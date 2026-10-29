@@ -1,0 +1,110 @@
+From 33797ab9408ac10bcec110ff381605c62608d949 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Thu, 29 Oct 2026 16:45:19 +0800
+Subject: [PATCH 6/7] qualcommbe: sbe1v1k: use PWM for the status LED and add
+ fan tach
+
+The RGB status LED is wired to PWM channels 0/1/2 (GPIO44 red, GPIO45
+green, GPIO56 blue), as in the stock firmware pinmux, but the DTS drives
+it with gpio-leds, so it can only be switched on and off. Describe it as
+pwm-leds so it can be dimmed and mixed.
+
+The fan tachometer is on GPIO40 (pulled up, 2 pulses per revolution) and
+is not described, so fan1_input does not exist. Add it to the pwm-fan
+node.
+
+Based on the diff posted by looong-cat in openwrt/openwrt#26099, tested
+there on a H/W 4.1 unit.
+
+Link: https://github.com/openwrt/openwrt/issues/26099
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01UKFhVE2GuUBp3KttLKHvCf
+---
+ .../linux/qualcommbe/dts/ipq9570-sbe1v1k.dts  | 32 ++++++++++++++++---
+ 1 file changed, 27 insertions(+), 5 deletions(-)
+
+diff --git a/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts b/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts
+index 1abc8c8..35c172c 100644
+--- a/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts
++++ b/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts
+@@ -6,6 +6,7 @@
+ 
+ #include <dt-bindings/gpio/gpio.h>
+ #include <dt-bindings/input/input.h>
++#include <dt-bindings/interrupt-controller/irq.h>
+ #include <dt-bindings/leds/common.h>
+ 
+ / {
+@@ -75,31 +76,45 @@
+ 		};
+ 	};
+ 
++	/*
++	 * RGB status LED on PWM channels 0/1/2 (GPIO44 red, GPIO45 green,
++	 * GPIO56 blue), as in the stock firmware (pwm00/pwm10/pwm24), so it
++	 * can be dimmed, mixed and breathed. The stock firmware caps green at
++	 * about 18% duty for colour balance; that is applied in userspace.
++	 */
+ 	leds {
+-		compatible = "gpio-leds";
++		compatible = "pwm-leds";
+ 
+ 		led_blue: led-blue {
+ 			color = <LED_COLOR_ID_BLUE>;
+ 			function = LED_FUNCTION_STATUS;
+-			gpios = <&tlmm 56 GPIO_ACTIVE_HIGH>;
++			pwms = <&pwm 2 16000 0>;
++			max-brightness = <255>;
+ 		};
+ 
+ 		led_red: led-red {
+ 			color = <LED_COLOR_ID_RED>;
+ 			function = LED_FUNCTION_STATUS;
+-			gpios = <&tlmm 44 GPIO_ACTIVE_HIGH>;
++			pwms = <&pwm 0 16000 0>;
++			max-brightness = <255>;
+ 		};
+ 
+ 		led-green {
+ 			color = <LED_COLOR_ID_GREEN>;
+ 			function = LED_FUNCTION_STATUS;
+-			gpios = <&tlmm 45 GPIO_ACTIVE_HIGH>;
++			pwms = <&pwm 1 16000 0>;
++			max-brightness = <255>;
+ 		};
+ 	};
+ 
+ 	fan: pwm-fan {
+ 		compatible = "pwm-fan";
+ 		pwms = <&pwm 3 40000 0>;
++		/* Tachometer on GPIO40 (pulled up), as in the stock firmware */
++		pinctrl-0 = <&fan_tach_pins>;
++		pinctrl-names = "default";
++		interrupts-extended = <&tlmm 40 IRQ_TYPE_EDGE_FALLING>;
++		pulses-per-revolution = <2>;
+ 		#cooling-cells = <2>;
+ 		cooling-levels = <36 72 128 255>;
+ 	};
+@@ -393,11 +408,18 @@
+ 
+ 	pwm_pins: pwm-pins {
+ 		pwm {
+-			pins = "gpio53";
++			pins = "gpio44", "gpio45", "gpio53", "gpio56";
+ 			function = "pwm";
+ 			drive-strength = <8>;
+ 		};
+ 	};
++
++	fan_tach_pins: fan-tach-pins {
++		pins = "gpio40";
++		function = "gpio";
++		drive-strength = <8>;
++		bias-pull-up;
++	};
+ };
+ 
+ &qpic_bam {
+-- 
+2.43.0
