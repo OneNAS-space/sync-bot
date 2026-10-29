@@ -1,5 +1,5 @@
 From 33797ab9408ac10bcec110ff381605c62608d949 Mon Sep 17 00:00:00 2001
-From: Claude <noreply@anthropic.com>
+From: Jackie Han <jackie.han@gmail.com>
 Date: Thu, 29 Oct 2026 16:45:19 +0800
 Subject: [PATCH 6/7] qualcommbe: sbe1v1k: use PWM for the status LED and add
  fan tach
@@ -17,9 +17,6 @@ Based on the diff posted by looong-cat in openwrt/openwrt#26099, tested
 there on a H/W 4.1 unit.
 
 Link: https://github.com/openwrt/openwrt/issues/26099
-
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01UKFhVE2GuUBp3KttLKHvCf
 ---
  .../linux/qualcommbe/dts/ipq9570-sbe1v1k.dts  | 32 ++++++++++++++++---
  1 file changed, 27 insertions(+), 5 deletions(-)
