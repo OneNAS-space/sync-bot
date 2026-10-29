@@ -6,6 +6,8 @@ Subject: [PATCH 7/7] qualcommbe: enable LEDS_PWM in the kernel config
 The SBE1V1K status LED is driven through the PWM LED driver. Build it
 into the kernel so the LED works out of the box without having to add
 kmod-leds-pwm to the image.
+
+Signed-off-by: Jackie Han <jackie.han@gmail.com>
 ---
  target/linux/qualcommbe/config-6.18 | 1 +
  1 file changed, 1 insertion(+)
