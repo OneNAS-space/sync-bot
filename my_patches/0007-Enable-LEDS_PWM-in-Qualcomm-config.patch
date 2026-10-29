@@ -1,0 +1,29 @@
+From 9003e703efeef7be92aa7df2e6b882d39060f685 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Thu, 29 Oct 2026 16:45:19 +0800
+Subject: [PATCH 7/7] qualcommbe: enable LEDS_PWM in the kernel config
+
+The SBE1V1K status LED is driven through the PWM LED driver. Build it
+into the kernel so the LED works out of the box without having to add
+kmod-leds-pwm to the image.
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01UKFhVE2GuUBp3KttLKHvCf
+---
+ target/linux/qualcommbe/config-6.18 | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/target/linux/qualcommbe/config-6.18 b/target/linux/qualcommbe/config-6.18
+index b31ea96..054c347 100644
+--- a/target/linux/qualcommbe/config-6.18
++++ b/target/linux/qualcommbe/config-6.18
+@@ -231,6 +231,7 @@ CONFIG_IRQ_MSI_IOMMU=y
+ CONFIG_IRQ_MSI_LIB=y
+ CONFIG_IRQ_WORK=y
+ # CONFIG_KPSS_XCC is not set
++CONFIG_LEDS_PWM=y
+ CONFIG_LEDS_TLC591XX=y
+ CONFIG_LIBFDT=y
+ CONFIG_LOCK_DEBUGGING_SUPPORT=y
+-- 
+2.43.0
