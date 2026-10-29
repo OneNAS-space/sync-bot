@@ -1,22 +1,22 @@
-From 82349a6fc4a65d417c796a622e4d62c4221615c3 Mon Sep 17 00:00:00 2001
+From 130862ec0e63b5521a72d114f61fc4da19e5b61d Mon Sep 17 00:00:00 2001
 From: Jackie Han <jackie.han@gmail.com>
 Date: Sat, 17 Oct 2026 18:36:28 +0800
 Subject: [PATCH] Add SBE1V1K default configuration script
 
-This script sets default configurations for SBE1V1K, including disabling packet steering and managing scan behavior for wireless devices.
+This script sets default configurations for SBE1V1K, including disabling packet steering, managing scan behavior for wireless devices, and a breathing blue status LED (added only when no status LED is configured yet).
 
 Signed-off-by: Jackie Han <jackie.han@gmail.com>
 ---
- .../etc/uci-defaults/99-sbe1v1k-defaults      | 44 +++++++++++++++++++
- 1 file changed, 44 insertions(+)
+ .../etc/uci-defaults/99-sbe1v1k-defaults      | 66 +++++++++++++++++++
+ 1 file changed, 66 insertions(+)
  create mode 100644 target/linux/qualcommbe/ipq95xx/base-files/etc/uci-defaults/99-sbe1v1k-defaults
 
 diff --git a/target/linux/qualcommbe/ipq95xx/base-files/etc/uci-defaults/99-sbe1v1k-defaults b/target/linux/qualcommbe/ipq95xx/base-files/etc/uci-defaults/99-sbe1v1k-defaults
 new file mode 100644
-index 00000000000000..1c35bac34e23a6
+index 0000000..0dc5ca5
 --- /dev/null
 +++ b/target/linux/qualcommbe/ipq95xx/base-files/etc/uci-defaults/99-sbe1v1k-defaults
-@@ -0,0 +1,44 @@
+@@ -0,0 +1,66 @@
 +#!/bin/sh
 +# SBE1V1K defaults, applied once per device (marker kept in /etc/config/system
 +# so a later choice by the user survives sysupgrade). Runs after
@@ -29,6 +29,28 @@ index 00000000000000..1c35bac34e23a6
 +	uci -q set network.@globals[0].packet_steering='0'
 +	uci -q set system.sbe1v1k_init.sbe1v1k_packet_steering='0'
 +	uci -q commit network
++	uci -q commit system
++fi
++
++# Top status LED: slow blue breathing via the "pattern" trigger (hook in
++# /usr/libexec/led-trigger/pattern). Only added when no led section already
++# drives one of the status LEDs, so an existing red/green/blue configuration
++# is never overridden or duplicated.
++if [ "$(uci -q get system.sbe1v1k_init.led_breathing)" != "1" ]; then
++	have_led=0
++	for s in $(uci -q show system | sed -n 's/^system\.\([^.]*\)=led$/\1/p'); do
++		case "$(uci -q get system.$s.sysfs)" in
++		red:status|green:status|blue:status) have_led=1 ;;
++		esac
++	done
++	if [ "$have_led" = 0 ]; then
++		uci -q set system.sbe1v1k_status_led='led'
++		uci -q set system.sbe1v1k_status_led.name='status breathing'
++		uci -q set system.sbe1v1k_status_led.sysfs='blue:status'
++		uci -q set system.sbe1v1k_status_led.trigger='pattern'
++		uci -q set system.sbe1v1k_status_led.pattern='0 1500 255 1500'
++	fi
++	uci -q set system.sbe1v1k_init.led_breathing='1'
 +	uci -q commit system
 +fi
 +
@@ -61,3 +83,5 @@ index 00000000000000..1c35bac34e23a6
 +fi
 +
 +exit $retry
+-- 
+2.43.0
