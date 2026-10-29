@@ -1,22 +1,22 @@
-From 130862ec0e63b5521a72d114f61fc4da19e5b61d Mon Sep 17 00:00:00 2001
+From 7b89f5ab9979a1eda30409c6a1475ec2a6d6ba04 Mon Sep 17 00:00:00 2001
 From: Jackie Han <jackie.han@gmail.com>
 Date: Sat, 17 Oct 2026 18:36:28 +0800
 Subject: [PATCH] Add SBE1V1K default configuration script
 
-This script sets default configurations for SBE1V1K, including disabling packet steering, managing scan behavior for wireless devices, and a breathing blue status LED (added only when no status LED is configured yet).
+This script sets default configurations for SBE1V1K, including disabling packet steering, managing scan behavior for wireless devices, and a breathing blue status LED (added only when no status LED is configured yet). Changes are committed once at the end of the script.
 
 Signed-off-by: Jackie Han <jackie.han@gmail.com>
 ---
- .../etc/uci-defaults/99-sbe1v1k-defaults      | 66 +++++++++++++++++++
- 1 file changed, 66 insertions(+)
+ .../etc/uci-defaults/99-sbe1v1k-defaults      | 65 +++++++++++++++++++
+ 1 file changed, 65 insertions(+)
  create mode 100644 target/linux/qualcommbe/ipq95xx/base-files/etc/uci-defaults/99-sbe1v1k-defaults
 
 diff --git a/target/linux/qualcommbe/ipq95xx/base-files/etc/uci-defaults/99-sbe1v1k-defaults b/target/linux/qualcommbe/ipq95xx/base-files/etc/uci-defaults/99-sbe1v1k-defaults
 new file mode 100644
-index 0000000..0dc5ca5
+index 0000000..43b54a3
 --- /dev/null
 +++ b/target/linux/qualcommbe/ipq95xx/base-files/etc/uci-defaults/99-sbe1v1k-defaults
-@@ -0,0 +1,66 @@
+@@ -0,0 +1,65 @@
 +#!/bin/sh
 +# SBE1V1K defaults, applied once per device (marker kept in /etc/config/system
 +# so a later choice by the user survives sysupgrade). Runs after
@@ -28,8 +28,6 @@ index 0000000..0dc5ca5
 +if [ "$(uci -q get system.sbe1v1k_init.sbe1v1k_packet_steering)" != "0" ]; then
 +	uci -q set network.@globals[0].packet_steering='0'
 +	uci -q set system.sbe1v1k_init.sbe1v1k_packet_steering='0'
-+	uci -q commit network
-+	uci -q commit system
 +fi
 +
 +# Top status LED: slow blue breathing via the "pattern" trigger (hook in
@@ -51,7 +49,6 @@ index 0000000..0dc5ca5
 +		uci -q set system.sbe1v1k_status_led.pattern='0 1500 255 1500'
 +	fi
 +	uci -q set system.sbe1v1k_init.led_breathing='1'
-+	uci -q commit system
 +fi
 +
 +# The three radios share one wiphy, so only one of them can scan at a time.
@@ -77,10 +74,12 @@ index 0000000..0dc5ca5
 +			esac
 +		done
 +		uci -q set system.sbe1v1k_init.noscan='1'
-+		uci -q commit wireless
-+		uci -q commit system
 +	fi
 +fi
++
++uci -q commit network
++uci -q commit system
++uci -q commit wireless
 +
 +exit $retry
 -- 
