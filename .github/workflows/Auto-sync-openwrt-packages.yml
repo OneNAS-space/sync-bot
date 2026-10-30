@@ -225,39 +225,6 @@ jobs:
           git commit -m "Sync from muink" || echo "No changes"
           git push origin master --force
 
-  sync-luci-app-passwall2:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Clone target repo
-        run: |
-          git clone https://x-access-token:${{ secrets.PAT }}@github.com/OneNAS-space/openwrt-passwall2.git /tmp/passwall2
-          cd /tmp/passwall2
-          git checkout main
-
-      - name: Add upstream and fetch
-        run: |
-          cd /tmp/passwall2
-          git remote add upstream https://github.com/Openwrt-Passwall/openwrt-passwall2.git || true
-          git fetch upstream main
-
-      - name: Update luci-app-passwall2 from upstream
-        run: |
-          cd /tmp/passwall2
-          rm -rf luci-app-passwall2
-          git checkout upstream/main -- luci-app-passwall2
-
-      - name: Commit and push
-        run: |
-          cd /tmp/passwall2
-          git add luci-app-passwall2
-          git commit -m "Sync from Openwrt-Passwall" || echo "No changes"
-          git push origin main --force
-
   sync-luci-app-temp-status:
     runs-on: ubuntu-latest
     steps:
