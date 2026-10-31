@@ -1,0 +1,74 @@
+From fb133a51df9c1d03e351ad456564fd9a0b17898f Mon Sep 17 00:00:00 2001
+From: Jackie Han <jackie.han@gmail.com>
+Date: Sat, 31 Oct 2026 11:40:00 +0800
+Subject: [PATCH 9/9] qualcommbe: sbe1v1k: enable the UART wired to the
+ Thread/BLE radio
+
+The SBE1V1K has a Silicon Labs EFR32MG21 radio (Thread / Bluetooth LE)
+on UART3 (serial@78b2000). The DTS only enables the console UART, so
+there is no /dev/ttyMSM2 and cpcd has nothing to talk to.
+
+Enable blsp1_uart3 and give it the serial2 alias, so it shows up as
+ttyMSM2. The pins are the ones the stock firmware uses (iot_pins in its
+DTB, identical in all three askey,rtq7300t revisions of SCP 1.5.3):
+GPIO15-18, function blsp3_uart.
+
+The stock pinmux also puts the radio reset (GPIO42) and recovery
+(GPIO64) lines in the same group. They are not described here;
+userspace drives them as plain GPIOs.
+
+Signed-off-by: Jackie Han <jackie.han@gmail.com>
+---
+ .../linux/qualcommbe/dts/ipq9570-sbe1v1k.dts  | 23 +++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+
+diff --git a/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts b/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts
+index 35c172c..58043a8 100644
+--- a/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts
++++ b/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts
+@@ -20,6 +20,7 @@
+ 		led-upgrade = &led_blue;
+ 
+ 		serial0 = &blsp1_uart2;
++		serial2 = &blsp1_uart3;
+ 	};
+ 
+ 	chosen {
+@@ -198,6 +199,16 @@
+ 	status = "okay";
+ };
+ 
++/*
++ * UART3 is wired to the EFR32MG21 radio (Thread / Bluetooth LE). With the
++ * serial2 alias it shows up as /dev/ttyMSM2.
++ */
++&blsp1_uart3 {
++	pinctrl-0 = <&uart3_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++};
++
+ /*
+  * No upstream driver currently binds these QCE nodes. Leaving them enabled
+  * prevents the GCC clock controller from completing sync_state(), which in
+@@ -420,6 +431,18 @@
+ 		drive-strength = <8>;
+ 		bias-pull-up;
+ 	};
++
++	/*
++	 * The four lines of the radio UART, as in the stock firmware (iot_pins).
++	 * The radio reset (GPIO42) and recovery (GPIO64) lines are not described
++	 * here; userspace drives them as plain GPIOs.
++	 */
++	uart3_pins: uart3-state {
++		pins = "gpio15", "gpio16", "gpio17", "gpio18";
++		function = "blsp3_uart";
++		drive-strength = <8>;
++		bias-disable;
++	};
+ };
+ 
+ &qpic_bam {
+-- 
+2.43.0
