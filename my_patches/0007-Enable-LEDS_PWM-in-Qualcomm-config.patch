@@ -1,28 +1,30 @@
-From 9003e703efeef7be92aa7df2e6b882d39060f685 Mon Sep 17 00:00:00 2001
+From 0ca5135ab3277e52f4481e2faa680568152369ec Mon Sep 17 00:00:00 2001
 From: Jackie Han <jackie.han@gmail.com>
-Date: Thu, 29 Oct 2026 16:45:19 +0800
-Subject: [PATCH 7/7] qualcommbe: enable LEDS_PWM in the kernel config
+Date: Sun, 1 Nov 2026 17:59:08 +0800
+Subject: [PATCH] qualcommbe: enable LEDS_PWM and LEDS_TRIGGER_PATTERN in the
+ kernel config
 
-The SBE1V1K status LED is driven through the PWM LED driver. Build it
-into the kernel so the LED works out of the box without having to add
-kmod-leds-pwm to the image.
-
-Signed-off-by: Jackie Han <jackie.han@gmail.com>
+The SBE1V1K status LED is driven through the PWM LED driver, and the
+breathing status LED uses the pattern trigger. Build both into the
+kernel so they work out of the box without having to add kmod-leds-pwm
+or kmod-ledtrig-pattern to the image.
 ---
- target/linux/qualcommbe/config-6.18 | 1 +
- 1 file changed, 1 insertion(+)
+ target/linux/qualcommbe/config-6.18 | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/target/linux/qualcommbe/config-6.18 b/target/linux/qualcommbe/config-6.18
-index b31ea96..054c347 100644
+index b31ea96..077f45c 100644
 --- a/target/linux/qualcommbe/config-6.18
 +++ b/target/linux/qualcommbe/config-6.18
-@@ -231,6 +231,7 @@ CONFIG_IRQ_MSI_IOMMU=y
+@@ -231,7 +231,9 @@ CONFIG_IRQ_MSI_IOMMU=y
  CONFIG_IRQ_MSI_LIB=y
  CONFIG_IRQ_WORK=y
  # CONFIG_KPSS_XCC is not set
 +CONFIG_LEDS_PWM=y
  CONFIG_LEDS_TLC591XX=y
++CONFIG_LEDS_TRIGGER_PATTERN=y
  CONFIG_LIBFDT=y
  CONFIG_LOCK_DEBUGGING_SUPPORT=y
+ CONFIG_LOCK_SPIN_ON_OWNER=y
 -- 
 2.43.0
