@@ -59,7 +59,6 @@ jobs:
           patch -p1 < ../config-repo/my_patches/0005-Add-uci_defaults-disable_packet_steering-Skip_scan_on_5G_6G.patch
           patch -p1 < ../config-repo/my_patches/0007-Enable-LEDS_PWM-in-Qualcomm-config.patch
           patch -p1 < ../config-repo/my_patches/0008-add-pattern-LED-trigger-hook.patch
-          patch -p1 < ../config-repo/my_patches/0009-dts-sbe1v1k-enable-radio-uart3.patch
 
       - name: Select Target (qualcommbe / ipq95xx)
         run: |
