@@ -1,0 +1,42 @@
+From f8dd4cc5bd0144fb61faa2d039e2896086176998 Mon Sep 17 00:00:00 2001
+From: Jackie Han <jackie.han@gmail.com>
+Date: Fri, 6 Nov 2026 07:09:13 +0800
+Subject: [PATCH] qualcommbe: sbe1v1k: disable the unused QCE nodes
+
+No driver binds the Qualcomm Crypto Engine in this build
+(CRYPTO_DEV_QCE is not set), and leaving the nodes enabled keeps the GCC
+clock controller's sync_state() pending forever:
+
+  qcom,gcc-ipq9574 1800000.clock-controller: sync_state() pending due to 73a000.crypto
+
+Disable &crypto and &cryptobam, as ipq9570-kiwi-dvk already does.
+---
+ target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts b/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts
+index b3068e5..65a9b0a 100644
+--- a/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts
++++ b/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts
+@@ -211,6 +211,19 @@
+ 	status = "okay";
+ };
+ 
++/*
++ * The Qualcomm Crypto Engine has no driver in this build
++ * (CRYPTO_DEV_QCE is not set). Leaving its nodes enabled keeps the GCC
++ * clock controller's sync_state() pending forever.
++ */
++&crypto {
++	status = "disabled";
++};
++
++&cryptobam {
++	status = "disabled";
++};
++
+ &rpm_requests {
+ 	regulators {
+ 		compatible = "qcom,rpm-mp5496-regulators";
+-- 
+2.43.0
