@@ -50,15 +50,39 @@ jobs:
 
       - name: Apply OpenWrt Tree Patches & Stage Kernel Patches
         run: |
+          set -euo pipefail
+          shopt -s nullglob
+          export LC_ALL=C
           cd openwrt-src
-          patch -p1 < ../config-repo/my_patches/0000-Update-vermagic-handling-in-kernel_defaults.patch
-          patch -p1 < ../config-repo/my_patches/0001-TEST-follow-upstream-no-qce-no-s1s2.patch
-          patch -p1 < ../config-repo/my_patches/0002-Enable-CMA-and-DMA_CMA-in-Qualcomm-config.patch
-          patch -p1 < ../config-repo/my_patches/0003-change-timezone-config_generate.patch
-          patch -p1 < ../config-repo/my_patches/0004-Add-LED-configuration-for-SBE1V1K-board.patch
-          patch -p1 < ../config-repo/my_patches/0005-Add-uci_defaults-disable_packet_steering-Skip_scan_on_5G_6G.patch
-          patch -p1 < ../config-repo/my_patches/0007-Enable-LEDS_PWM-in-Qualcomm-config.patch
-          patch -p1 < ../config-repo/my_patches/0008-add-pattern-LED-trigger-hook.patch
+
+          # Apply every my_patches/NNNN-*.patch in file-name order, so adding
+          # or removing a patch file needs no change here. The first patch
+          # that does not apply cleanly fails the job.
+          patches=(../config-repo/my_patches/[0-9][0-9][0-9][0-9]-*.patch)
+          if [ "${#patches[@]}" -eq 0 ]; then
+            echo "::error::no patches found in my_patches/"
+            exit 1
+          fi
+
+          for p in "${patches[@]}"; do
+            name=$(basename "$p")
+            echo "=== Applying $name"
+            rc=0
+            out=$(patch -p1 < "$p" 2>&1) || rc=$?
+            echo "$out"
+            if [ "$rc" -ne 0 ]; then
+              if grep -q "Reversed (or previously applied)" <<<"$out"; then
+                echo "::error::$name looks already merged upstream: delete it from my_patches/"
+              else
+                echo "::error::$name does not apply to current upstream: rebase it (see .rej below)"
+              fi
+              find . -name '*.rej' -print -exec cat {} \;
+              exit 1
+            fi
+            if grep -qi " fuzz " <<<"$out"; then
+              echo "::warning::$name applied with fuzz, please review"
+            fi
+          done
 
       - name: Select Target (qualcommbe / ipq95xx)
         run: |
