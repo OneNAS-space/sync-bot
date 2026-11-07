@@ -1,7 +1,7 @@
-From 66e273abf5a0a2c746230697a9a744cfe4f1861e Mon Sep 17 00:00:00 2001
+From 82b8118e00dffe7c3b4618c6717f4d2a064530a0 Mon Sep 17 00:00:00 2001
 From: Jackie Han <jackie.han@gmail.com>
-Date: Thu, 29 Oct 2026 21:12:11 +0800
-Subject: [PATCH 8/9] base-files: qualcommbe: add pattern LED trigger hook for
+Date: Sat, 7 Nov 2026 22:11:34 +0800
+Subject: [PATCH] base-files: qualcommbe: add pattern LED trigger hook for
  init.d/led
 
 /etc/init.d/led has no handler for the "pattern" LED trigger: it selects
@@ -9,28 +9,82 @@ the trigger but never writes the pattern, so the LED stays dark. The
 script does source /usr/libexec/led-trigger/<trigger> when present, so
 add one for "pattern". With it, a "config led" section in
 /etc/config/system can use "option trigger 'pattern'" and
-"option pattern '<brightness> <ms> ...'" (e.g. '0 1500 255 1500' for a
-1.5 s ramp up, 1.5 s ramp down).
+"option pattern '<brightness> <ms> ...'".
+
+A light made of several RGB channels (white breathing) needs its
+channels to start together, but init.d/led starts the LEDs one after
+another and the colours would run out of step. After the last pattern
+LED has been set up, led-pattern-sync stops the RGB channels that run
+a pattern and starts them again back to back.
 
 Needs CONFIG_PACKAGE_kmod-ledtrig-pattern in the image.
 
 Signed-off-by: Jackie Han <jackie.han@gmail.com>
 ---
- .../ipq95xx/base-files/usr/libexec/led-trigger/pattern      | 6 ++++++
- 1 file changed, 6 insertions(+)
+ .../base-files/usr/libexec/led-pattern-sync   | 34 +++++++++++++++++++
+ .../usr/libexec/led-trigger/pattern           | 15 ++++++++
+ 2 files changed, 49 insertions(+)
+ create mode 100755 target/linux/qualcommbe/ipq95xx/base-files/usr/libexec/led-pattern-sync
  create mode 100644 target/linux/qualcommbe/ipq95xx/base-files/usr/libexec/led-trigger/pattern
 
+diff --git a/target/linux/qualcommbe/ipq95xx/base-files/usr/libexec/led-pattern-sync b/target/linux/qualcommbe/ipq95xx/base-files/usr/libexec/led-pattern-sync
+new file mode 100755
+index 0000000..d62680b
+--- /dev/null
++++ b/target/linux/qualcommbe/ipq95xx/base-files/usr/libexec/led-pattern-sync
+@@ -0,0 +1,34 @@
++#!/bin/sh
++# Restart the patterns of the RGB status LEDs at the same moment, so a light made of
++# several channels (white breathing) keeps its colours together.
++#
++# /etc/init.d/led starts the LEDs one after another and calls the pattern hook once per
++# LED. Every call lands here; only the last one acts, a second after it started.
++# With fewer than two RGB channels on a pattern there is nothing to line up.
++
++LEDDIR=${LEDDIR:-/sys/class/leds}
++STAMP=${STAMP:-/var/run/led-pattern-sync}
++
++echo $$ > "$STAMP"
++sleep 1
++[ "$(cat "$STAMP" 2>/dev/null)" = "$$" ] || exit 0
++
++cd "$LEDDIR" || exit 1
++n=0
++for c in red green blue; do
++	eval "P_$c="
++	grep -q '\[pattern\]' "$c:status/trigger" 2>/dev/null || continue
++	eval "P_$c=\"\$(cat $c:status/pattern 2>/dev/null)\""
++	n=$((n + 1))
++done
++[ "$n" -ge 2 ] || exit 0
++
++# stop them, park each at the first brightness of its pattern, then start them back to back
++for c in red green blue; do
++	eval "p=\$P_$c"; [ -n "$p" ] || continue
++	echo none > "$c:status/trigger"
++	echo "$(echo $p | awk '{print $1}')" > "$c:status/brightness"
++done
++for c in red green blue; do eval "p=\$P_$c"; [ -n "$p" ] && echo pattern > "$c:status/trigger"; done
++for c in red green blue; do eval "p=\$P_$c"; [ -n "$p" ] && echo "$p" > "$c:status/pattern"; done
++exit 0
 diff --git a/target/linux/qualcommbe/ipq95xx/base-files/usr/libexec/led-trigger/pattern b/target/linux/qualcommbe/ipq95xx/base-files/usr/libexec/led-trigger/pattern
 new file mode 100644
-index 0000000..8444dc4
+index 0000000..fc72f5f
 --- /dev/null
 +++ b/target/linux/qualcommbe/ipq95xx/base-files/usr/libexec/led-trigger/pattern
-@@ -0,0 +1,6 @@
+@@ -0,0 +1,15 @@
 +# Sourced by /etc/init.d/led (load_led) for "option trigger 'pattern'".
 +# The stock script has no pattern case, so drive the sysfs files here.
 +#   option pattern '<brightness> <ms> [<brightness> <ms> ...]'
 +config_get pattern "$1" pattern
 +echo pattern > "/sys/class/leds/${sysfs}/trigger"
 +echo "$pattern" > "/sys/class/leds/${sysfs}/pattern"
--- 
-2.43.0
++
++# The init script starts the LEDs one after another, so a light made of several RGB
++# channels (white breathing) would start out of step and show colour fringes at the ends
++# of every fade. Line the channels up once they are all configured.
++case "$sysfs" in
++red:status|green:status|blue:status)
++	/usr/libexec/led-pattern-sync >/dev/null 2>&1 &
++	;;
++esac
