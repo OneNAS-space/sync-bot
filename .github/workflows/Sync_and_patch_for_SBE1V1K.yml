@@ -93,7 +93,7 @@ jobs:
           make defconfig
 
       - name: Cache OpenWrt dl
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: openwrt-src/dl
           key: openwrt-dl-${{ hashFiles('openwrt-src/package/kernel/mac80211/Makefile', 'openwrt-src/package/network/services/hostapd/Makefile', 'openwrt-src/target/linux/qualcommbe/Makefile', 'openwrt-src/target/linux/qualcommbe/ipq95xx/target.mk', 'openwrt-src/target/linux/generic/kernel-*') }}
