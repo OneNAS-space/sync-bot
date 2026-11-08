@@ -92,7 +92,16 @@ jobs:
           echo "CONFIG_TARGET_qualcommbe_ipq95xx_DEVICE_askey_sbe1v1k=y" >> .config
           make defconfig
 
+      - name: Cache OpenWrt dl
+        uses: actions/cache@v4
+        with:
+          path: openwrt-src/dl
+          key: openwrt-dl-${{ hashFiles('openwrt-src/package/kernel/mac80211/Makefile', 'openwrt-src/package/network/services/hostapd/Makefile', 'openwrt-src/target/linux/qualcommbe/Makefile', 'openwrt-src/target/linux/qualcommbe/ipq95xx/target.mk', 'openwrt-src/target/linux/generic/kernel-*') }}
+          restore-keys: |
+            openwrt-dl-
+
       - name: Prepare Upstream Baseline Sources
+        timeout-minutes: 15
         run: |
           cd openwrt-src
           make target/linux/{download,prepare}
