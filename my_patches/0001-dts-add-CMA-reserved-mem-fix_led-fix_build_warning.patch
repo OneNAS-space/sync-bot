@@ -1,13 +1,15 @@
-From ff823740bf6f63c137e70e5a116661e70dc2de56 Mon Sep 17 00:00:00 2001
+From ed6941f0e641c53ab3b2b052039c179d7455f7ef Mon Sep 17 00:00:00 2001
 From: Jackie Han <jackie.han@gmail.com>
 Date: Fri, 25 Sep 2026 11:14:13 +0800
 Subject: [PATCH] Modify ipq9570-sbe1v1k.dts for memory, PHY LED and
  build-warning fixes
 
 Updated device tree source for ipq9570-sbe1v1k.dts: reserve a 256 MiB CMA
-pool, add the WAN PHY LED nodes, set the QCA8075 QSGMII TX drive strength
-to match the stock SSDK, and fix the address/size cells and PCIe unit
-addresses that triggered dtc warnings.
+pool, release the 44 MiB Q6 region that ipq9574.dtsi reserves for the
+integrated WCSS radio (not used on this board), add the WAN PHY LED
+nodes, set the QCA8075 QSGMII TX drive strength to match the stock SSDK,
+and fix the address/size cells and PCIe unit addresses that triggered dtc
+warnings.
 
 The s1/s2 regulator overrides are no longer carried: upstream dropped the
 MP5496 L5 regulator, and cpufreq scales between 936 MHz and 2.208 GHz
@@ -16,11 +18,11 @@ in ipq9574.dtsi upstream, so the local override is gone as well.
 
 Signed-off-by: Jackie Han <jackie.han@gmail.com>
 ---
- .../linux/qualcommbe/dts/ipq9570-sbe1v1k.dts  | 44 +++++++++++++++++--
- 1 file changed, 41 insertions(+), 3 deletions(-)
+ .../linux/qualcommbe/dts/ipq9570-sbe1v1k.dts  | 52 +++++++++++++++++--
+ 1 file changed, 49 insertions(+), 3 deletions(-)
 
 diff --git a/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts b/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts
-index 4df8f81..b3068e5 100644
+index 4df8f81173..493efae912 100644
 --- a/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts
 +++ b/target/linux/qualcommbe/dts/ipq9570-sbe1v1k.dts
 @@ -25,13 +25,25 @@
@@ -49,7 +51,22 @@ index 4df8f81..b3068e5 100644
  	};
  
  	regulator_fixed_3p3: s3300 {
-@@ -229,6 +241,9 @@
+@@ -199,6 +211,14 @@
+ 	status = "okay";
+ };
+ 
++/*
++ * The integrated WCSS radio is not used here, all three radios are PCIe
++ * cards handled by ath12k. Do not reserve the 44 MiB Q6 region for it.
++ */
++&q6_region {
++	status = "disabled";
++};
++
+ &rpm_requests {
+ 	regulators {
+ 		compatible = "qcom,rpm-mp5496-regulators";
+@@ -229,6 +249,9 @@
  	pinctrl-names = "default";
  	status = "okay";
  
@@ -59,7 +76,7 @@ index 4df8f81..b3068e5 100644
  	card@0 {
  		compatible = "mmc-card";
  		reg = <0>;
-@@ -541,6 +556,23 @@
+@@ -541,6 +564,23 @@
  		reset-gpios = <&tlmm 41 GPIO_ACTIVE_LOW>;
  		reset-assert-us = <40000>;
  		reset-deassert-us = <150000>;
@@ -83,7 +100,7 @@ index 4df8f81..b3068e5 100644
  	};
  
  	ethernet-phy-package@16 {
-@@ -550,6 +582,12 @@
+@@ -550,6 +590,12 @@
  		reg = <16>;
  
  		qcom,package-mode = "qsgmii";
@@ -96,7 +113,7 @@ index 4df8f81..b3068e5 100644
  
  		qca8075_18: ethernet-phy@18 {
  			compatible = "ethernet-phy-ieee802.3-c22";
-@@ -670,7 +708,7 @@
+@@ -670,7 +716,7 @@
  
  	pcie@0 {
  		device_type = "pci";
@@ -105,7 +122,7 @@ index 4df8f81..b3068e5 100644
  		#address-cells = <3>;
  		#size-cells = <2>;
  		ranges;
-@@ -720,9 +758,9 @@
+@@ -720,9 +766,9 @@
  	wake-gpios = <&tlmm 33 GPIO_ACTIVE_LOW>;
  	status = "okay";
  
